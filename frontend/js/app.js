@@ -14,6 +14,7 @@ import { registerPage } from './pages/register.js';
 import { calendarPage } from './pages/calendar.js';
 import { todoPage } from './pages/todo.js';
 import { settingsPage } from './pages/settings.js';
+import { ChatPanel } from './ai/chat-panel.js';
 
 class App {
   static async init() {
@@ -60,7 +61,9 @@ class App {
       await AuthManager.fetchCurrentUser();
     }
 
-    // 7. Listen for AI Panel toggle
+    // 7. Initialize AI Chat Panel
+    ChatPanel.init();
+
     const aiPanel = document.getElementById('ai-chat-panel');
     const closeAiBtn = document.getElementById('btn-close-ai');
     if (closeAiBtn) {

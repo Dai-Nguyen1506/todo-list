@@ -354,17 +354,17 @@ Chuẩn bị    Backend     Frontend    Calendar    To Do       AI Agent    Tố
 | 5.18 | Markdown rendering (basic) | `js/ai/message.js` |
 
 ### Kiểm tra
-- [ ] Chat panel toggle mở/đóng
-- [ ] Gửi tin nhắn → nhận phản hồi từ AI
-- [ ] AI gọi tool tạo event → event xuất hiện trên Calendar
-- [ ] AI gọi tool tạo task → task xuất hiện trong To Do
-- [ ] AI gọi tool lấy schedule → trả về đúng data
-- [ ] AI từ chối câu hỏi ngoài phạm vi
-- [ ] AI đưa lời khuyên quản lý thời gian
-- [ ] Rate limiting hoạt động (> 30 msg/phút → error)
-- [ ] Conversation history lưu/load đúng
-- [ ] Error handling: API down → hiện thông báo phù hợp
-- [ ] Quick action buttons hoạt động
+- [x] Chat panel toggle mở/đóng
+- [x] Gửi tin nhắn → nhận phản hồi từ AI
+- [x] AI gọi tool tạo event → event xuất hiện trên Calendar
+- [x] AI gọi tool tạo task → task xuất hiện trong To Do
+- [x] AI gọi tool lấy schedule → trả về đúng data
+- [x] AI từ chối câu hỏi ngoài phạm vi
+- [x] AI đưa lời khuyên quản lý thời gian
+- [x] Rate limiting hoạt động (> 30 msg/phút → error)
+- [x] Conversation history lưu/load đúng
+- [x] Error handling: API down → hiện thông báo phù hợp
+- [x] Quick action buttons hoạt động
 
 ---
 

@@ -8,6 +8,7 @@ from app.schemas.ai_schema import (
     AIConversationCreate, AIConversationResponse, AIMessageSend, AIMessageResponse
 )
 from app.services.ai_service import ai_service
+from app.core.rate_limit import check_ai_rate_limit
 
 router = APIRouter()
 
@@ -46,7 +47,7 @@ async def delete_conversation(
     """Xóa cuộc trò chuyện"""
     await ai_service.delete_conversation(db, conversation_id=conversation_id, user_id=current_user.id)
 
-@router.post("/conversations/{conversation_id}/messages", response_model=AIMessageResponse)
+@router.post("/conversations/{conversation_id}/messages", response_model=AIMessageResponse, dependencies=[Depends(check_ai_rate_limit)])
 async def send_message(
     conversation_id: int,
     msg_in: AIMessageSend,
@@ -58,7 +59,7 @@ async def send_message(
         db, user=current_user, conversation_id=conversation_id, content=msg_in.content
     )
 
-@router.post("/chat", response_model=AIMessageResponse)
+@router.post("/chat", response_model=AIMessageResponse, dependencies=[Depends(check_ai_rate_limit)])
 async def quick_chat(
     msg_in: AIMessageSend,
     db: AsyncSession = Depends(get_db),
