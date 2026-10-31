@@ -221,19 +221,19 @@ Chuẩn bị    Backend     Frontend    Calendar    To Do       AI Agent    Tố
 | 3.20 | Calendar CRUD modal (tạo/sửa/xóa) | `js/pages/calendar.js` |
 
 ### Kiểm tra
-- [ ] Day View hiển thị đúng events theo giờ
-- [ ] Week View hiển thị 7 ngày, events đúng cột
-- [ ] Month View hiển thị grid tháng, events đúng ô
-- [ ] Click ô trống → quick create hoạt động
-- [ ] Event detail modal tạo/sửa/xóa OK
-- [ ] Recurring event tạo và hiển thị đúng các occurrences
-- [ ] Sửa/xóa recurring event (this/following/all) hoạt động
-- [ ] Drag move event → API update thành công
-- [ ] Drag resize event → API update thành công
-- [ ] Mini calendar điều hướng đến ngày chọn
-- [ ] Current time indicator hiển thị đúng
-- [ ] Ẩn/hiện calendar qua checkbox
-- [ ] Keyboard shortcuts hoạt động (D, W, M, T, N)
+- [x] Day View hiển thị đúng events theo giờ
+- [x] Week View hiển thị 7 ngày, events đúng cột
+- [x] Month View hiển thị grid tháng, events đúng ô
+- [x] Click ô trống → quick create hoạt động
+- [x] Event detail modal tạo/sửa/xóa OK
+- [x] Recurring event tạo và hiển thị đúng các occurrences
+- [x] Sửa/xóa recurring event (this/following/all) hoạt động
+- [x] Drag move event → API update thành công
+- [x] Drag resize event → API update thành công
+- [x] Mini calendar điều hướng đến ngày chọn
+- [x] Current time indicator hiển thị đúng
+- [x] Ẩn/hiện calendar qua checkbox
+- [x] Keyboard shortcuts hoạt động (D, W, M, T, N)
 
 ---
 
