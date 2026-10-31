@@ -50,3 +50,7 @@ app.add_exception_handler(Exception, unhandled_exception_handler)
 @app.get("/", tags=["Root"])
 def read_root():
     return {"success": f"Welcome to {settings.PROJECT_NAME} API!"}
+
+@app.get("/health", tags=["Health"])
+def health_check():
+    return {"status": "healthy"}
