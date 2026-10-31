@@ -43,11 +43,11 @@ Chuẩn bị    Backend     Frontend    Calendar    To Do       AI Agent    Tố
 | 0.15 | Cập nhật .env.example | Thêm AI_API_KEY, AI_MODEL | Medium |
 
 ### Kiểm tra
-- [ ] `make dev` chạy thành công
-- [ ] Frontend load index.html
-- [ ] Theme toggle hoạt động (light/dark)
-- [ ] Router chuyển trang không reload
-- [ ] API client gọi được backend
+- [x] `make dev` chạy thành công
+- [x] Frontend load index.html
+- [x] Theme toggle hoạt động (light/dark)
+- [x] Router chuyển trang không reload
+- [x] API client gọi được backend
 
 ---
 

@@ -1,0 +1,58 @@
+[data-theme="light"] {
+  /* ===== BACKGROUNDS ===== */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f8f9fa;
+  --color-bg-tertiary: #f1f3f4;
+  --color-bg-hover: #f1f3f4;
+  --color-bg-active: #e8eaed;
+  --color-bg-selected: #e8f0fe;
+  --color-bg-sidebar: #fcfdfe;
+  --color-bg-card: #ffffff;
+  --color-bg-input: #ffffff;
+  --color-bg-modal: #ffffff;
+
+  /* ===== TEXT COLORS ===== */
+  --color-text-primary: #202124;
+  --color-text-secondary: #5f6368;
+  --color-text-tertiary: #80868b;
+  --color-text-muted: #9aa0a6;
+  --color-text-inverse: #ffffff;
+  --color-text-link: #1a73e8;
+
+  /* ===== BORDER COLORS ===== */
+  --color-border: #dadce0;
+  --color-border-light: #e8eaed;
+  --color-border-focus: #1a73e8;
+
+  /* ===== ACCENT COLORS (Google Blue inspired) ===== */
+  --color-accent: #1a73e8;
+  --color-accent-hover: #1765cc;
+  --color-accent-active: #1557b0;
+  --color-accent-light: #e8f0fe;
+  --color-accent-contrast: #ffffff;
+
+  /* ===== SEMANTIC STATUS ===== */
+  --color-success: #1e8e3e;
+  --color-success-bg: #e6f4ea;
+  --color-warning: #f9ab00;
+  --color-warning-bg: #fef7e0;
+  --color-danger: #d93025;
+  --color-danger-bg: #fce8e6;
+  --color-info: #1a73e8;
+  --color-info-bg: #e8f0fe;
+
+  /* ===== SPECIAL HIGHLIGHTS ===== */
+  --color-star: #f9ab00;
+  --color-today: #1a73e8;
+  --color-overdue: #d93025;
+
+  /* ===== CALENDAR GRID ===== */
+  --color-grid-line: #dadce0;
+  --color-grid-line-half: #f1f3f4;
+  --color-time-indicator: #ea4335;
+  --color-event-default: #1a73e8;
+
+  /* ===== SCROLLBAR ===== */
+  --color-scrollbar: #dadce0;
+  --color-scrollbar-hover: #bdc1c6;
+}

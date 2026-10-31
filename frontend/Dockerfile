@@ -1,12 +1,14 @@
-FROM node:18-alpine
+FROM nginx:alpine
 
-WORKDIR /app
+# Remove default nginx static assets
+RUN rm -rf /usr/share/nginx/html/*
 
-COPY package*.json ./
-RUN npm install
+# Copy custom configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-COPY . .
+# Copy static frontend files
+COPY . /usr/share/nginx/html
 
-EXPOSE 3000
+EXPOSE 80
 
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+CMD ["nginx", "-g", "daemon off;"]

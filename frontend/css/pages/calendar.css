@@ -1,0 +1,132 @@
+.calendar-page {
+  flex: 1;
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.calendar-sidebar {
+  width: 240px;
+  border-right: 1px solid var(--color-border);
+  background-color: var(--color-bg-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-md);
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.calendar-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--color-bg-primary);
+}
+
+.calendar-toolbar {
+  height: 52px;
+  padding: 0 var(--space-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.calendar-nav-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.calendar-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  min-width: 180px;
+}
+
+.view-toggle-group {
+  display: flex;
+  background-color: var(--color-bg-tertiary);
+  padding: 2px;
+  border-radius: var(--radius-md);
+}
+
+.view-toggle-btn {
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.view-toggle-btn.active {
+  background-color: var(--color-bg-card);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.calendar-view-container {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Event Cards */
+.event-card {
+  position: absolute;
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  font-size: var(--font-size-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  color: #ffffff;
+  user-select: none;
+  z-index: 2;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.event-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  z-index: 5;
+}
+
+.event-card.all-day {
+  position: relative;
+  margin-bottom: 2px;
+}
+
+.event-card-time {
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+/* Current time indicator */
+.time-indicator-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--color-time-indicator);
+  z-index: 4;
+  pointer-events: none;
+}
+
+.time-indicator-circle {
+  position: absolute;
+  left: -5px;
+  top: -4px;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-time-indicator);
+}
