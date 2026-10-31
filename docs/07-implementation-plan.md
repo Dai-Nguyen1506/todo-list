@@ -161,15 +161,15 @@ Chuẩn bị    Backend     Frontend    Calendar    To Do       AI Agent    Tố
 | 2.13 | Settings page (theme, profile) | `js/pages/settings.js`, `css/pages/settings.css` |
 
 ### Kiểm tra
-- [ ] Login → nhận JWT → redirect đến app
-- [ ] Register → tạo tài khoản → auto login
-- [ ] Sidebar navigation hoạt động
-- [ ] Theme toggle hoạt động
-- [ ] Modal open/close có animation
-- [ ] Date picker chọn ngày chính xác
-- [ ] Time picker chọn giờ chính xác
-- [ ] Toast hiện và tự ẩn
-- [ ] Responsive trên mobile/tablet/desktop
+- [x] Login → nhận JWT → redirect đến app
+- [x] Register → tạo tài khoản → auto login
+- [x] Sidebar navigation hoạt động
+- [x] Theme toggle hoạt động
+- [x] Modal open/close có animation
+- [x] Date picker chọn ngày chính xác
+- [x] Time picker chọn giờ chính xác
+- [x] Toast hiện và tự ẩn
+- [x] Responsive trên mobile/tablet/desktop
 
 ---
 

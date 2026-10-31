@@ -35,12 +35,32 @@ class App {
     // 4. Initialize UI Sidebar
     Sidebar.init();
 
-    // 5. Try to restore active user session
+    // 5. Update user badge in header
+    store.on('user', (user) => {
+      const nameEl = document.getElementById('user-display-name');
+      const avatarEl = document.getElementById('user-avatar-initial');
+      if (user) {
+        if (nameEl) nameEl.textContent = user.nickname || user.email;
+        if (avatarEl) avatarEl.textContent = (user.nickname || user.email || 'U')[0].toUpperCase();
+      } else {
+        if (nameEl) nameEl.textContent = 'Người dùng';
+        if (avatarEl) avatarEl.textContent = 'U';
+      }
+    });
+
+    const profileBadge = document.getElementById('user-profile-badge');
+    if (profileBadge) {
+      profileBadge.addEventListener('click', () => {
+        window.location.hash = '#settings';
+      });
+    }
+
+    // 6. Try to restore active user session
     if (AuthManager.isAuthenticated()) {
       await AuthManager.fetchCurrentUser();
     }
 
-    // 6. Listen for AI Panel toggle
+    // 7. Listen for AI Panel toggle
     const aiPanel = document.getElementById('ai-chat-panel');
     const closeAiBtn = document.getElementById('btn-close-ai');
     if (closeAiBtn) {
@@ -55,7 +75,7 @@ class App {
       }
     });
 
-    // 7. Start SPA Router
+    // 8. Start SPA Router
     router.start();
 
     console.log('✅ Planify App Ready!');
@@ -66,4 +86,3 @@ class App {
 window.addEventListener('DOMContentLoaded', () => {
   App.init();
 });
-
