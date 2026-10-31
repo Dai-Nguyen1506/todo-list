@@ -1,70 +1,102 @@
-# Web Template (FastAPI + React + PostgreSQL + Redis)
+# 🌟 Planify - Ứng dụng Quản lý Thời gian & Công việc Toàn diện
 
-> 💡 **DÀNH CHO NGƯỜI MỚI**: Bạn thắc mắc dự án này đang có những công cụ gì, kiến trúc thư mục ra sao và tích hợp sẵn những tính năng nào? Hãy bấm xem ngay [📖 Thông Tin Chi Tiết Dự Án](docs/informations.md) để dễ dàng làm quen nhé!
-
-Đây là mẫu dự án thiết kế web (Boilerplate) nhằm rút ngắn thời gian khởi tạo, cấu hình và xây dựng kiến trúc thư mục cho các ứng dụng Web hiện đại. Mẫu này tích hợp sẵn các công cụ mạnh mẽ và cấu hình Docker chuẩn để dễ dàng bắt đầu lập trình ngay lập tức.
-
-## 🚀 Công nghệ sử dụng
-- **Backend**: Python 3.11, FastAPI, SQLAlchemy, Alembic, Pydantic
-- **Frontend**: React 18, Vite, TypeScript
-- **Database**: PostgreSQL 15 (sử dụng asyncpg)
-- **Cache / OTP**: Redis 7
-- **Quản lý môi trường**: Docker & Docker Compose
-- **Tiện ích**: Hỗ trợ Makefile giúp chạy lệnh nhanh chóng
-
-## 📁 Cấu trúc thư mục
-```text
-web-template/
-├── backend/            # Code Backend (FastAPI)
-│   ├── app/            # Source code chính của Backend
-│   ├── alembic/        # Quản lý Database Migrations
-│   ├── tests/          # Unit tests
-│   └── Dockerfile
-├── frontend/           # Code Frontend (React + Vite)
-│   ├── src/            # Source code chính của Frontend
-│   └── Dockerfile
-├── docker-compose.yml  # Cấu hình Docker để chạy toàn bộ môi trường Dev
-├── Makefile            # Chứa các phím tắt (alias) thao tác hệ thống
-└── .env.example        # File mẫu cấu hình biến môi trường
-```
-
-## ⚙️ Hướng dẫn cài đặt (Setup)
-
-### 1. Chuẩn bị môi trường
-Hãy đảm bảo máy tính của bạn đã cài đặt sẵn:
-- **Docker** và **Docker Compose**
-- **Git** (khuyên dùng)
-- (Tùy chọn) `make` (Có sẵn trên Linux/Mac. Trên Windows, bạn có thể cài thông qua MSYS2, Chocolatey hoặc chạy trực tiếp lệnh `docker compose`).
-
-### 2. Cấu hình biến môi trường
-Mở Terminal tại thư mục gốc của dự án và tạo file `.env` từ file mẫu `.env.example`:
-```bash
-cp .env.example .env
-```
-*(Lưu ý: Mở file `.env` và cập nhật lại các thông tin như `ADMIN_EMAIL`, mật khẩu db, mật khẩu redis,... nếu cần thiết phù hợp với config mới của bạn).*
-
-### 3. Khởi chạy dự án
-Chạy lệnh sau để build và khởi động toàn bộ hệ thống (Frontend, Backend, DB, Redis):
-```bash
-make dev
-```
-*(Nếu bạn không có lệnh `make` trên Windows, hãy chạy: `docker compose up -d --build`)*
-
-### 4. Truy cập ứng dụng
-Sau khi hệ thống khởi chạy thành công:
-- **Frontend (Web App):** http://127.0.0.1:3000
-- **Backend API (Swagger UI):** http://127.0.0.1:8000/docs
-- **Admin/Redoc:** http://127.0.0.1:8000/redoc
+> **Planify** kết hợp sức mạnh của **Google Calendar**, **Microsoft Outlook Calendar**, **Microsoft To Do** và **Trợ lý AI Agent thông minh** chạy trên mô hình `openai/gpt-oss-120b` (Groq API) với khả năng gọi 12 tools tự động.
+> Giao diện frontend thuần **100% Vanilla HTML, CSS, JavaScript** không phụ thuộc framework, siêu nhẹ, hỗ trợ cả giao diện Sáng (Light) và Tối (Dark).
 
 ---
 
-## 🛠 Các lệnh quản lý thường dùng (Makefile)
+## 🎯 Tính năng nổi bật
 
-Dưới đây là một số lệnh hữu ích được định nghĩa sẵn trong `Makefile`:
+### 1. 📅 Calendar Module (Lịch biểu chuyên nghiệp)
+- **Đa dạng chế độ xem**:
+  - **Day View**: Trục thời gian 24 giờ, khu vực all-day, hiển thị task đến hạn trong ngày, vạch đỏ chỉ báo thời gian hiện tại (`time-indicator`).
+  - **Week View**: Lưới 7 ngày trực quan, phân chia theo từng khung giờ.
+  - **Month View**: Ma trận ngày trong tháng, hiển thị sự kiện và badge `+N xem thêm`.
+- **Mini Calendar**: Lịch nhỏ bên sidebar hỗ trợ duyệt nhanh giữa các tháng/ngày.
+- **Sự kiện lặp lại (Recurring Events)**: Chuẩn hóa theo chuẩn RFC 5545 (RRULE), hỗ trợ lặp hàng ngày, hàng tuần, hàng tháng, hàng năm.
+- **Tùy chỉnh lịch**: Quản lý nhiều bộ lịch độc lập (công việc, cá nhân, học tập...) với mã màu sắc riêng biệt và checkbox ẩn/hiện.
+- **Phím tắt**: `D` (Day), `W` (Week), `M` (Month), `T` (Today), `N` (Tạo sự kiện mới).
 
-- `make dev-down`: Tắt toàn bộ hệ thống.
-- `make logs-backend`: Xem log của riêng Backend.
-- `make logs-frontend`: Xem log của riêng Frontend.
-- `make db-migrate msg="tên_migration"`: Tự động tạo file migration cho Database sau khi sửa models.
-- `make db-upgrade`: Cập nhật cấu trúc (schema) Database lên phiên bản mới nhất.
-- `make clean`: Dọn dẹp sạch sẽ toàn bộ project (bao gồm xoá cả Database volume của môi trường Dev, hãy cẩn thận!).
+### 2. ✅ To Do Module (Quản lý việc cần làm thông minh)
+- **Smart Lists chuẩn Microsoft To Do**:
+  - ☀️ **My Day**: Tập trung vào mục tiêu trong ngày, tự động làm mới mỗi sáng kèm nút 💡 **Gợi ý** thông minh.
+  - ⭐ **Important**: Bộ lọc công việc ưu tiên gắn sao.
+  - 📅 **Planned**: Phân nhóm trực quan theo tiến độ: Quá hạn (đỏ), Hôm nay (xanh), Ngày mai, Tuần này, Sau đó.
+  - 📋 **All Tasks**: Tổng hợp toàn bộ công việc phân loại theo danh sách.
+- **Custom Lists**: Tạo danh sách công việc tùy biến kèm icon emoji và bảng màu sắc.
+- **Subtasks (Steps)**: Chia nhỏ công việc thành nhiều bước con với thanh tiến độ hoàn thành.
+- **Recurrence Chaining**: Khi hoàn thành task lặp lại, hệ thống tự động sinh chu kỳ tiếp theo với các subtasks nguyên vẹn.
+- **Kéo thả sắp xếp (Drag & Drop)**: Reorder thứ tự công việc dễ dàng.
+- **Phím tắt**: `Space` (Toggle hoàn thành), `S` (Toggle quan trọng), `Delete` (Xóa task), `Esc` (Đóng chi tiết).
+
+### 3. 🤖 AI Agent (Trợ lý thời gian thông minh)
+- Tích hợp mô hình `openai/gpt-oss-120b` thông qua Groq API siêu tốc.
+- **12 Tools tự động**:
+  - Sự kiện: `create_event`, `get_events`, `update_event`, `delete_event`, `check_availability`.
+  - Công việc: `create_task`, `get_tasks`, `update_task`, `complete_task`, `delete_task`, `add_task_step`.
+  - Lời khuyên & Tổng quan: `get_day_summary`.
+- **Guardrails nghiêm ngặt**: Chỉ hỗ trợ các vấn đề về quản lý thời gian, lịch trình, to-do list và lời khuyên sắp xếp năng suất; kiên quyết từ chối các câu hỏi ngoài phạm vi (toán học, code, trò chuyện phiếm).
+- **Rate Limiting**: Giới hạn an toàn 30 tin nhắn/phút/user bằng Redis counter.
+- **Lịch sử hội thoại**: Hỗ trợ lưu trữ nhiều cuộc hội thoại độc lập.
+
+### 4. 🎨 Giao diện & Trải nghiệm người dùng (UX)
+- Hỗ trợ đầy đủ **Light Mode** & **Dark Mode**, tự động đồng bộ theo tùy chọn người dùng và lưu trên DB/localStorage.
+- 100% Vanilla JS, tối ưu tốc độ tải trang, không cồng kềnh, mượt mà trên cả máy tính và di động.
+
+---
+
+## 🏗️ Kiến trúc Công nghệ
+
+- **Backend**: Python 3.11, FastAPI, SQLAlchemy 2.0 (Async), Alembic, Pydantic v2.
+- **Frontend**: Vanilla HTML5, CSS3 Variables, JavaScript ES Modules, Nginx Alpine container.
+- **Database**: PostgreSQL 15 (Asyncpg).
+- **Cache & Rate Limit**: Redis 7.
+- **DevOps**: Docker, Docker Compose, Makefile.
+
+---
+
+## 🚀 Hướng dẫn Cài đặt & Khởi chạy
+
+### 1. Yêu cầu hệ thống
+- Đã cài đặt **Docker** và **Docker Compose**.
+
+### 2. Cấu hình biến môi trường
+Tạo file `.env` từ file mẫu:
+```bash
+cp .env.example .env
+```
+Cập nhật `AI_API_KEY` (Groq API Key) trong file `.env` để kích hoạt tính năng AI Agent.
+
+### 3. Khởi động ứng dụng
+Chạy lệnh:
+```bash
+docker compose up -d --build
+```
+Chạy migrations cơ sở dữ liệu:
+```bash
+docker compose exec backend alembic upgrade head
+```
+
+### 4. Truy cập ứng dụng
+- **Web App (Frontend)**: [http://localhost:3000](http://localhost:3000)
+- **API Swagger Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- **API ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
+
+---
+
+## 🧪 Kiểm thử Tự động (Automated Test Suites)
+
+Tất cả các phase đều có bộ test tự động xác thực:
+```bash
+# Test Phase 1: REST API & DB CRUD
+docker compose exec backend python tests/test_phase1_api.py
+
+# Test Phase 4: To-Do Module & Recurring Tasks
+docker compose exec backend python tests/test_phase4_todo.py
+
+# Test Phase 5: AI Agent, Guardrails & Rate Limiting
+docker compose exec backend python tests/test_phase5_ai.py
+
+# Test Phase 6: Cross-Module Integration & Sync
+docker compose exec backend python tests/test_phase6_cross_module.py
+```

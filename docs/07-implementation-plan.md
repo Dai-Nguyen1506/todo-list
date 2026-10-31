@@ -380,54 +380,54 @@ Chuẩn bị    Backend     Frontend    Calendar    To Do       AI Agent    Tố
 ### Công việc chi tiết
 
 #### 6A. Bug Fixing & Edge Cases
-| # | Task |
-|---|------|
-| 6.1 | Test recurring events edge cases (timezone, DST) |
-| 6.2 | Test My Day reset logic (midnight) |
-| 6.3 | Test recurring tasks completion chain |
-| 6.4 | Fix event overlap rendering (Day/Week View) |
-| 6.5 | Fix drag & drop edge cases |
-| 6.6 | Test AI tool execution error handling |
-| 6.7 | Fix responsive layout issues |
+| # | Task | Status |
+|---|------|--------|
+| 6.1 | Test recurring events edge cases (timezone, DST) | [x] |
+| 6.2 | Test My Day reset logic (midnight) | [x] |
+| 6.3 | Test recurring tasks completion chain | [x] |
+| 6.4 | Fix event overlap rendering (Day/Week View) | [x] |
+| 6.5 | Fix drag & drop edge cases | [x] |
+| 6.6 | Test AI tool execution error handling | [x] |
+| 6.7 | Fix responsive layout issues | [x] |
 
 #### 6B. Performance Optimization
-| # | Task |
-|---|------|
-| 6.8 | Implement event caching (in-memory) |
-| 6.9 | Debounce search/filter inputs |
-| 6.10 | Lazy load calendar data (only current view range) |
-| 6.11 | Optimize RRULE expansion (limit range) |
-| 6.12 | Add loading skeletons cho UX |
+| # | Task | Status |
+|---|------|--------|
+| 6.8 | Implement event caching (in-memory) | [x] |
+| 6.9 | Debounce search/filter inputs | [x] |
+| 6.10 | Lazy load calendar data (only current view range) | [x] |
+| 6.11 | Optimize RRULE expansion (limit range) | [x] |
+| 6.12 | Add loading skeletons cho UX | [x] |
 
 #### 6C. UI Polish
-| # | Task |
-|---|------|
-| 6.13 | Kiểm tra tất cả animations mượt mà |
-| 6.14 | Kiểm tra dark theme tất cả components |
-| 6.15 | Kiểm tra color consistency |
-| 6.16 | Kiểm tra font sizes & spacing consistency |
-| 6.17 | Thêm tooltips cho các icon buttons |
-| 6.18 | Empty states (no events, no tasks) |
+| # | Task | Status |
+|---|------|--------|
+| 6.13 | Kiểm tra tất cả animations mượt mà | [x] |
+| 6.14 | Kiểm tra dark theme tất cả components | [x] |
+| 6.15 | Kiểm tra color consistency | [x] |
+| 6.16 | Kiểm tra font sizes & spacing consistency | [x] |
+| 6.17 | Thêm tooltips cho các icon buttons | [x] |
+| 6.18 | Empty states (no events, no tasks) | [x] |
 
 #### 6D. Cross-Module Testing
-| # | Test Scenario | Expected |
-|---|--------------|----------|
-| 6.19 | Tạo event qua Calendar → hiện trên AI summary | ✓ |
-| 6.20 | Tạo task qua AI → hiện trên To Do & Calendar | ✓ |
-| 6.21 | Complete task trên Calendar → To Do cập nhật | ✓ |
-| 6.22 | Đổi theme → tất cả components đổi màu | ✓ |
-| 6.23 | Xóa list → tasks bên trong bị xóa | ✓ |
-| 6.24 | Recurring event sửa "following" → đúng logic | ✓ |
-| 6.25 | My Day suggestions hiện đúng tasks phù hợp | ✓ |
-| 6.26 | AI tạo recurring event → hiện trên Calendar | ✓ |
-| 6.27 | Mobile responsive test | ✓ |
+| # | Test Scenario | Expected | Status |
+|---|--------------|----------|--------|
+| 6.19 | Tạo event qua Calendar → hiện trên AI summary | ✓ | [x] |
+| 6.20 | Tạo task qua AI → hiện trên To Do & Calendar | ✓ | [x] |
+| 6.21 | Complete task trên Calendar → To Do cập nhật | ✓ | [x] |
+| 6.22 | Đổi theme → tất cả components đổi màu | ✓ | [x] |
+| 6.23 | Xóa list → tasks bên trong bị xóa | ✓ | [x] |
+| 6.24 | Recurring event sửa "following" → đúng logic | ✓ | [x] |
+| 6.25 | My Day suggestions hiện đúng tasks phù hợp | ✓ | [x] |
+| 6.26 | AI tạo recurring event → hiện trên Calendar | ✓ | [x] |
+| 6.27 | Mobile responsive test | ✓ | [x] |
 
 #### 6E. Documentation
-| # | Task |
-|---|------|
-| 6.28 | Cập nhật README.md |
-| 6.29 | Cập nhật .env.example |
-| 6.30 | Viết hướng dẫn sử dụng |
+| # | Task | Status |
+|---|------|--------|
+| 6.28 | Cập nhật README.md | [x] |
+| 6.29 | Cập nhật .env.example | [x] |
+| 6.30 | Viết hướng dẫn sử dụng | [x] |
 
 ---
 

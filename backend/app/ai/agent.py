@@ -1,4 +1,5 @@
 import json
+import asyncio
 import httpx
 from datetime import datetime
 from typing import List, Dict, Any
@@ -120,11 +121,27 @@ class PlanifyAgent:
             "max_tokens": 1024
         }
 
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            resp = await client.post(f"{self.base_url}/chat/completions", headers=headers, json=payload)
-            resp.raise_for_status()
-            data = resp.json()
-            return data["choices"][0]["message"]
+        for attempt in range(3):
+            try:
+                async with httpx.AsyncClient(timeout=30.0) as client:
+                    resp = await client.post(f"{self.base_url}/chat/completions", headers=headers, json=payload)
+                    if resp.status_code == 429 and attempt < 2:
+                        logger.warning(f"Groq API 429 rate limit hit, retry attempt {attempt + 1}...")
+                        await asyncio.sleep(2.0 * (attempt + 1))
+                        continue
+                    resp.raise_for_status()
+                    data = resp.json()
+                    return data["choices"][0]["message"]
+            except httpx.HTTPStatusError as e:
+                if e.response.status_code == 429 and attempt < 2:
+                    await asyncio.sleep(2.0 * (attempt + 1))
+                    continue
+                raise
+            except httpx.RequestError as e:
+                if attempt < 2:
+                    await asyncio.sleep(1.0)
+                    continue
+                raise
 
 planify_agent = PlanifyAgent()
 
