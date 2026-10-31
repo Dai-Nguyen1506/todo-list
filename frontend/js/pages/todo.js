@@ -1,8 +1,28 @@
 import { createElement } from '../utils/dom.js';
+import { api } from '../api.js';
+import { Toast } from '../components/toast.js';
 import { formatVietnameseDate } from '../utils/date.js';
+import { SmartListsSidebar } from '../todo/smart-lists.js';
+import { TaskListView } from '../todo/task-list-view.js';
+import { TaskForm } from '../todo/task-form.js';
+import { TaskDetail } from '../todo/task-detail.js';
+import { MyDaySuggestions } from '../todo/suggestions.js';
+import { Dropdown } from '../components/dropdown.js';
 
 export const todoPage = {
   container: null,
+  tasks: [],
+  activeListId: 'my_day',
+  activeListName: 'My Day',
+  activeListIcon: '☀️',
+  activeTask: null,
+  sortBy: 'default',
+  hideCompleted: false,
+
+  sidebarComponent: null,
+  taskListComponent: null,
+  taskFormComponent: null,
+  taskDetailComponent: null,
 
   async render(container) {
     this.container = container;
@@ -10,84 +30,285 @@ export const todoPage = {
 
     const page = createElement('div', { className: 'todo-page' });
 
-    // Sidebar: Smart lists & user lists
-    const sidebar = createElement('aside', { className: 'todo-sidebar' }, [
-      createElement('div', { className: 'todo-list-item active', 'data-list': 'my_day' }, [
-        createElement('span', { textContent: '☀️' }),
-        createElement('span', { textContent: 'My Day' }),
-        createElement('span', { className: 'todo-list-badge', textContent: '0' })
-      ]),
-      createElement('div', { className: 'todo-list-item', 'data-list': 'important' }, [
-        createElement('span', { textContent: '⭐' }),
-        createElement('span', { textContent: 'Important' }),
-        createElement('span', { className: 'todo-list-badge', textContent: '0' })
-      ]),
-      createElement('div', { className: 'todo-list-item', 'data-list': 'planned' }, [
-        createElement('span', { textContent: '📅' }),
-        createElement('span', { textContent: 'Planned' }),
-        createElement('span', { className: 'todo-list-badge', textContent: '0' })
-      ]),
-      createElement('div', { className: 'todo-list-item', 'data-list': 'all' }, [
-        createElement('span', { textContent: '📋' }),
-        createElement('span', { textContent: 'All Tasks' }),
-        createElement('span', { className: 'todo-list-badge', textContent: '0' })
-      ]),
-      createElement('div', { className: 'todo-divider' }),
-      createElement('div', { className: 'todo-list-item', 'data-list': 'default' }, [
-        createElement('span', { textContent: '📝' }),
-        createElement('span', { textContent: 'Tasks' }),
-        createElement('span', { className: 'todo-list-badge', textContent: '0' })
+    // 1. Sidebar Container
+    const sidebarEl = createElement('aside', { className: 'todo-sidebar' });
+
+    // 2. Main Content Container
+    const mainEl = createElement('div', { className: 'todo-main flex-1 flex flex-col overflow-hidden' });
+
+    // Header
+    const headerEl = createElement('div', { className: 'todo-header' });
+    const titleRow = createElement('div', { className: 'todo-title-row' }, [
+      createElement('span', { id: 'todo-header-icon', style: { fontSize: '28px' }, textContent: this.activeListIcon }),
+      createElement('div', {}, [
+        createElement('h1', { className: 'todo-title', id: 'todo-header-title', textContent: this.activeListName }),
+        createElement('span', { className: 'todo-date-subtitle', id: 'todo-header-subtitle', textContent: formatVietnameseDate(new Date()) })
       ])
     ]);
 
-    // Main tasks view
-    const main = createElement('div', { className: 'todo-main' });
+    const headerActions = createElement('div', { className: 'flex items-center gap-sm' });
 
-    // Header
-    const header = createElement('div', { className: 'todo-header' }, [
-      createElement('div', { className: 'todo-title-row' }, [
-        createElement('span', { style: { fontSize: '28px' }, textContent: '☀️' }),
-        createElement('div', {}, [
-          createElement('h1', { className: 'todo-title', textContent: 'My Day' }),
-          createElement('span', { className: 'todo-date-subtitle', textContent: formatVietnameseDate(new Date()) })
-        ])
-      ]),
-      createElement('button', { className: 'btn btn-secondary', id: 'btn-suggestions', textContent: '💡 Gợi ý' })
-    ]);
+    // Suggestions button (visible in My Day)
+    const suggestionsBtn = createElement('button', {
+      className: 'btn btn-secondary btn-sm',
+      id: 'btn-suggestions',
+      textContent: '💡 Gợi ý',
+      style: { display: this.activeListId === 'my_day' ? 'inline-flex' : 'none' },
+      onclick: () => this.showSuggestions()
+    });
 
-    // Add task bar
-    const inputBar = createElement('div', { className: 'todo-input-bar' }, [
-      createElement('span', { textContent: '➕' }),
-      createElement('input', {
-        type: 'text',
-        className: 'todo-input',
-        id: 'new-task-input',
-        placeholder: 'Thêm một công việc cần làm...'
-      })
-    ]);
+    // Sort Dropdown button
+    const sortBtn = createElement('button', {
+      className: 'btn btn-secondary btn-sm',
+      textContent: '⇅ Sắp xếp',
+      onclick: (e) => this.showSortDropdown(e)
+    });
 
-    // Task items list
-    const itemsList = createElement('div', { className: 'todo-items-list', id: 'task-items-container' }, [
-      createElement('div', {
-        style: { padding: '40px', textAlign: 'center', color: 'var(--color-text-secondary)' },
-        textContent: '✅ Chưa có công việc nào trong danh sách này.'
-      })
-    ]);
+    headerActions.appendChild(suggestionsBtn);
+    headerActions.appendChild(sortBtn);
 
-    main.appendChild(header);
-    main.appendChild(inputBar);
-    main.appendChild(itemsList);
+    headerEl.appendChild(titleRow);
+    headerEl.appendChild(headerActions);
 
-    page.appendChild(sidebar);
-    page.appendChild(main);
+    // Task Form Input Bar Container
+    const formContainer = createElement('div');
+
+    // Task Items List Container
+    const listContainer = createElement('div', { className: 'flex-1 overflow-hidden flex flex-col' });
+
+    mainEl.appendChild(headerEl);
+    mainEl.appendChild(formContainer);
+    mainEl.appendChild(listContainer);
+
+    // 3. Task Detail Panel Container
+    const detailEl = createElement('div', { className: 'task-detail-container', style: { display: 'none' } });
+
+    page.appendChild(sidebarEl);
+    page.appendChild(mainEl);
+    page.appendChild(detailEl);
     container.appendChild(page);
+
+    // Initialize sub-components
+    this.sidebarComponent = new SmartListsSidebar({
+      container: sidebarEl,
+      activeListId: this.activeListId,
+      tasks: this.tasks,
+      onSelectList: (id, name, icon) => this.switchList(id, name, icon),
+      onListsChanged: () => this.fetchTasks()
+    });
+
+    this.taskListComponent = new TaskListView({
+      container: listContainer,
+      tasks: this.tasks,
+      activeListId: this.activeListId,
+      sortBy: this.sortBy,
+      hideCompleted: this.hideCompleted,
+      onSelectTask: (task) => this.selectTask(task),
+      onToggleComplete: (task, isCompleted) => this.toggleComplete(task, isCompleted),
+      onToggleImportant: (task, isImportant) => this.toggleImportant(task, isImportant),
+      onReorderTasks: (srcId, targetId) => this.reorderTasks(srcId, targetId)
+    });
+
+    this.taskFormComponent = new TaskForm({
+      container: formContainer,
+      listId: typeof this.activeListId === 'number' ? this.activeListId : null,
+      isMyDay: this.activeListId === 'my_day',
+      onCreated: () => this.fetchTasks()
+    });
+
+    this.taskDetailComponent = new TaskDetail(detailEl, {
+      onUpdate: () => this.fetchTasks(),
+      onClose: () => this.closeDetail()
+    });
+
+    // Event listeners
+    this.setupShortcuts();
+    this.taskChangedListener = () => this.fetchTasks();
+    document.addEventListener('task-changed', this.taskChangedListener);
+
+    // Initial data fetch
+    await this.fetchTasks();
+  },
+
+  async fetchTasks() {
+    try {
+      this.tasks = await api.get('/tasks');
+      this.updateComponents();
+      if (this.activeTask) {
+        const updatedActive = this.tasks.find(t => t.id === this.activeTask.id);
+        if (updatedActive) {
+          this.activeTask = updatedActive;
+          this.taskDetailComponent.show(updatedActive);
+        } else {
+          this.closeDetail();
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load tasks', err);
+    }
+  },
+
+  updateComponents() {
+    this.sidebarComponent.update({
+      activeListId: this.activeListId,
+      tasks: this.tasks
+    });
+
+    this.taskListComponent.setProps({
+      tasks: this.tasks,
+      activeListId: this.activeListId,
+      sortBy: this.sortBy,
+      hideCompleted: this.hideCompleted
+    });
+
+    this.taskFormComponent.setListContext(
+      typeof this.activeListId === 'number' ? this.activeListId : null,
+      this.activeListId === 'my_day'
+    );
+  },
+
+  switchList(id, name, icon) {
+    this.activeListId = id;
+    this.activeListName = name;
+    this.activeListIcon = icon;
+
+    const iconEl = document.getElementById('todo-header-icon');
+    const titleEl = document.getElementById('todo-header-title');
+    const subEl = document.getElementById('todo-header-subtitle');
+    const sugBtn = document.getElementById('btn-suggestions');
+
+    if (iconEl) iconEl.textContent = icon;
+    if (titleEl) titleEl.textContent = name;
+    if (subEl) {
+      subEl.textContent = id === 'my_day' ? formatVietnameseDate(new Date()) : '';
+    }
+    if (sugBtn) {
+      sugBtn.style.display = id === 'my_day' ? 'inline-flex' : 'none';
+    }
+
+    this.updateComponents();
+  },
+
+  selectTask(task) {
+    this.activeTask = task;
+    const detailContainer = this.container.querySelector('.task-detail-container');
+    if (detailContainer) {
+      detailContainer.style.display = 'block';
+    }
+    this.taskDetailComponent.show(task);
+  },
+
+  closeDetail() {
+    this.activeTask = null;
+    const detailContainer = this.container?.querySelector('.task-detail-container');
+    if (detailContainer) {
+      detailContainer.style.display = 'none';
+    }
+    this.taskDetailComponent.hide();
+  },
+
+  async toggleComplete(task, isCompleted) {
+    try {
+      const updated = await api.patch(`/tasks/${task.id}/complete`, { is_completed: isCompleted });
+      task.is_completed = isCompleted;
+      document.dispatchEvent(new CustomEvent('task-changed', {
+        detail: { action: 'update', task: updated }
+      }));
+      await this.fetchTasks();
+    } catch (err) {
+      Toast.error('Không thể cập nhật trạng thái');
+    }
+  },
+
+  async toggleImportant(task, isImportant) {
+    try {
+      const updated = await api.patch(`/tasks/${task.id}/important`, { is_important: isImportant });
+      task.is_important = isImportant;
+      document.dispatchEvent(new CustomEvent('task-changed', {
+        detail: { action: 'update', task: updated }
+      }));
+      this.updateComponents();
+    } catch (err) {
+      Toast.error('Không thể cập nhật quan trọng');
+    }
+  },
+
+  reorderTasks(sourceId, targetId) {
+    const srcIdx = this.tasks.findIndex(t => t.id === sourceId);
+    const trgIdx = this.tasks.findIndex(t => t.id === targetId);
+    if (srcIdx !== -1 && trgIdx !== -1) {
+      const [moved] = this.tasks.splice(srcIdx, 1);
+      this.tasks.splice(trgIdx, 0, moved);
+      this.updateComponents();
+    }
+  },
+
+  showSuggestions() {
+    const suggestions = new MyDaySuggestions({
+      tasks: this.tasks,
+      onAdd: () => this.fetchTasks()
+    });
+    suggestions.show();
+  },
+
+  showSortDropdown(e) {
+    const items = [
+      { label: 'Mặc định (Thủ công)', action: () => { this.sortBy = 'default'; this.updateComponents(); } },
+      { label: '⭐ Quan trọng trước', action: () => { this.sortBy = 'important'; this.updateComponents(); } },
+      { label: '📅 Ngày hạn chót', action: () => { this.sortBy = 'due_date'; this.updateComponents(); } },
+      { label: '🔤 Tên (A-Z)', action: () => { this.sortBy = 'title'; this.updateComponents(); } },
+      { label: '🕒 Ngày tạo', action: () => { this.sortBy = 'created_at'; this.updateComponents(); } }
+    ];
+
+    Dropdown.show({
+      anchorEl: e.currentTarget,
+      items
+    });
+  },
+
+  setupShortcuts() {
+    this.keyHandler = (e) => {
+      // Ignore if typing inside input, textarea, or contentEditable
+      if (['INPUT', 'TEXTAREA'].includes(e.target.tagName) || e.target.isContentEditable) {
+        return;
+      }
+
+      if (e.key === 'Escape') {
+        if (this.activeTask) {
+          this.closeDetail();
+        }
+      } else if (e.key === ' ' && this.activeTask) {
+        e.preventDefault();
+        this.toggleComplete(this.activeTask, !this.activeTask.is_completed);
+      } else if ((e.key === 's' || e.key === 'S') && this.activeTask) {
+        e.preventDefault();
+        this.toggleImportant(this.activeTask, !this.activeTask.is_important);
+      } else if (e.key === 'Delete' && this.activeTask) {
+        e.preventDefault();
+        const t = this.activeTask;
+        if (confirm(`Bạn có chắc muốn xóa "${t.title}"?`)) {
+          api.delete(`/tasks/${t.id}`).then(() => {
+            Toast.success('Đã xóa công việc');
+            this.closeDetail();
+            this.fetchTasks();
+          });
+        }
+      }
+    };
+
+    document.addEventListener('keydown', this.keyHandler);
   },
 
   destroy() {
+    if (this.keyHandler) {
+      document.removeEventListener('keydown', this.keyHandler);
+    }
+    if (this.taskChangedListener) {
+      document.removeEventListener('task-changed', this.taskChangedListener);
+    }
     if (this.container) {
       this.container.innerHTML = '';
       this.container = null;
     }
   }
 };
-

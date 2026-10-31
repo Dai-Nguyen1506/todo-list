@@ -71,6 +71,10 @@ export const calendarPage = {
       }
     };
     document.addEventListener('keydown', this.handleKeyDown);
+
+    // Cross-module sync with Tasks
+    this.handleTaskChanged = () => this.updateView();
+    document.addEventListener('task-changed', this.handleTaskChanged);
   },
 
   async fetchCalendars(container) {
@@ -301,6 +305,10 @@ export const calendarPage = {
     if (this.handleKeyDown) {
       document.removeEventListener('keydown', this.handleKeyDown);
       this.handleKeyDown = null;
+    }
+    if (this.handleTaskChanged) {
+      document.removeEventListener('task-changed', this.handleTaskChanged);
+      this.handleTaskChanged = null;
     }
     if (this.activeView && typeof this.activeView.destroy === 'function') {
       this.activeView.destroy();

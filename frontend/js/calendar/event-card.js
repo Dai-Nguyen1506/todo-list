@@ -1,7 +1,8 @@
 import { createElement } from '../utils/dom.js';
 import { formatDate } from '../utils/date.js';
 import { EventForm } from './event-form.js';
-import { store } from '../store.js';
+import { api } from '../api.js';
+import { Toast } from '../components/toast.js';
 
 export class EventCard {
   static create({ event, onUpdate = null }) {
@@ -11,23 +12,50 @@ export class EventCard {
     const timeStr = event.is_all_day ? 'Cả ngày' : `${formatDate(start, 'HH:mm')} - ${formatDate(end, 'HH:mm')}`;
 
     const card = createElement('div', {
-      className: `event-card ${event.is_all_day ? 'all-day' : ''}`,
+      className: `event-card ${event.is_all_day ? 'all-day' : ''} ${event.is_completed ? 'completed opacity-60' : ''}`,
       style: {
         backgroundColor: event.color || (isTask ? '#0B8043' : 'var(--color-event-default)')
       },
       onclick: (e) => {
         e.stopPropagation();
         if (isTask) {
-          // Switch to todo or open task
           window.location.hash = '#todo';
         } else {
           EventForm.showFullModal({ event, onCreated: onUpdate });
         }
       }
-    }, [
-      createElement('span', { className: 'event-card-time', textContent: isTask ? '☑' : timeStr }),
-      createElement('span', { className: 'event-card-title', textContent: event.title })
-    ]);
+    });
+
+    if (isTask) {
+      const checkBtn = createElement('span', {
+        className: 'event-task-check-icon mr-xs cursor-pointer',
+        style: { fontWeight: 'bold' },
+        textContent: event.is_completed ? '☑' : '☐',
+        title: 'Hoàn thành công việc',
+        onclick: async (e) => {
+          e.stopPropagation();
+          try {
+            await api.patch(`/tasks/${event.id}/complete`, { is_completed: !event.is_completed });
+            Toast.success('Đã cập nhật trạng thái công việc');
+            document.dispatchEvent(new CustomEvent('task-changed', {
+              detail: { action: 'update', taskId: event.id }
+            }));
+            if (onUpdate) onUpdate();
+          } catch (err) {
+            Toast.error('Lỗi khi hoàn thành công việc');
+          }
+        }
+      });
+      card.appendChild(checkBtn);
+    } else {
+      card.appendChild(createElement('span', { className: 'event-card-time', textContent: timeStr }));
+    }
+
+    card.appendChild(createElement('span', {
+      className: 'event-card-title truncate',
+      style: { textDecoration: event.is_completed ? 'line-through' : 'none' },
+      textContent: event.title
+    }));
 
     return card;
   }

@@ -186,3 +186,41 @@
   z-index: var(--z-detail-panel);
 }
 
+
+/* Drag over highlight */
+.task-item.task-drag-over {
+  border: 2px dashed var(--color-accent);
+  background-color: var(--color-bg-hover);
+}
+
+/* Task completion animation trigger */
+.task-item.task-completing {
+  animation: task-complete 0.3s ease forwards;
+}
+
+/* Detail panel container */
+.task-detail-container {
+  width: var(--detail-panel-width, 360px);
+  height: 100%;
+  border-left: 1px solid var(--color-border);
+  background-color: var(--color-bg-secondary);
+  overflow-y: auto;
+  flex-shrink: 0;
+  animation: slide-in-right var(--transition-normal) forwards;
+  z-index: 10;
+}
+
+@media (max-width: 768px) {
+  .todo-sidebar {
+    width: 200px;
+  }
+  .task-detail-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: var(--shadow-lg);
+  }
+}

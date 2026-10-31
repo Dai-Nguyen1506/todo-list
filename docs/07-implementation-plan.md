@@ -298,21 +298,21 @@ Chuẩn bị    Backend     Frontend    Calendar    To Do       AI Agent    Tố
 | 4.28 | Cross-module event system | `js/store.js` (cập nhật) |
 
 ### Kiểm tra
-- [ ] My Day hiển thị tasks hôm nay, reset khi ngày mới
-- [ ] Important filter đúng tasks starred
-- [ ] Planned hiển thị tasks grouped by date
-- [ ] Task create → xuất hiện trong list
-- [ ] Task complete → animation → move to completed section
-- [ ] Task star toggle hoạt động
-- [ ] Task detail panel mở/đóng mượt
-- [ ] Steps CRUD hoạt động
-- [ ] Due date/Reminder/Repeat set/clear hoạt động
-- [ ] Move task giữa lists hoạt động
-- [ ] My Day suggestions hiện đúng tasks gợi ý
-- [ ] Tasks hiển thị đúng trên Calendar
-- [ ] Recurring task: complete → tạo task mới với next date
-- [ ] Sort & filter hoạt động
-- [ ] Drag reorder tasks/lists hoạt động
+- [x] My Day hiển thị tasks hôm nay, reset khi ngày mới
+- [x] Important filter đúng tasks starred
+- [x] Planned hiển thị tasks grouped by date
+- [x] Task create → xuất hiện trong list
+- [x] Task complete → animation → move to completed section
+- [x] Task star toggle hoạt động
+- [x] Task detail panel mở/đóng mượt
+- [x] Steps CRUD hoạt động
+- [x] Due date/Reminder/Repeat set/clear hoạt động
+- [x] Move task giữa lists hoạt động
+- [x] My Day suggestions hiện đúng tasks gợi ý
+- [x] Tasks hiển thị đúng trên Calendar
+- [x] Recurring task: complete → tạo task mới với next date
+- [x] Sort & filter hoạt động
+- [x] Drag reorder tasks/lists hoạt động
 
 ---
 
