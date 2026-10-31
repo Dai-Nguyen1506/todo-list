@@ -122,15 +122,15 @@ Chuẩn bị    Backend     Frontend    Calendar    To Do       AI Agent    Tố
 | 1.38 | Cập nhật API router (register mới) | `app/api/v1/api.py` |
 
 ### Kiểm tra
-- [ ] Database migration chạy thành công
-- [ ] Tất cả API endpoints trả về đúng response format
-- [ ] Test qua Swagger UI (`/docs`):
-  - [ ] CRUD Calendar hoạt động
-  - [ ] CRUD Events hoạt động (bao gồm recurring)
-  - [ ] CRUD Tasks hoạt động
-  - [ ] CRUD TaskLists hoạt động
-  - [ ] Dashboard endpoint trả về data đúng
-- [ ] User đăng ký mới → tự tạo Calendar + TaskList mặc định
+- [x] Database migration chạy thành công
+- [x] Tất cả API endpoints trả về đúng response format
+- [x] Test qua Swagger UI (`/docs`):
+  - [x] CRUD Calendar hoạt động
+  - [x] CRUD Events hoạt động (bao gồm recurring)
+  - [x] CRUD Tasks hoạt động
+  - [x] CRUD TaskLists hoạt động
+  - [x] Dashboard endpoint trả về data đúng
+- [x] User đăng ký mới → tự tạo Calendar + TaskList mặc định
 
 ---
 

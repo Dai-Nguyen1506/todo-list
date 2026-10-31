@@ -49,3 +49,4 @@ export function hide(el) {
 export function toggle(el, force) {
   if (el) el.classList.toggle('hidden', force);
 }
+

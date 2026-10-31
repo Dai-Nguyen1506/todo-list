@@ -30,6 +30,15 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: Optional[str] = None
     REDIS_URL: Optional[str] = None
 
+    # 5. Cấu hình AI Agent (Groq)
+    AI_API_KEY: Optional[str] = None
+    API_KEY: Optional[str] = None
+    AI_MODEL: str = "openai/gpt-oss-120b"
+
+    @property
+    def get_ai_api_key(self) -> str:
+        return self.AI_API_KEY or self.API_KEY or ""
+
     @property
     def get_redis_url(self) -> str:
         if self.REDIS_URL:

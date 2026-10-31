@@ -41,3 +41,4 @@ export class ThemeManager {
     return next;
   }
 }
+

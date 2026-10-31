@@ -21,3 +21,6 @@ python-multipart>=0.0.7
 
 # Redis client
 redis>=5.0.1
+
+# HTTP client for Groq AI
+httpx>=0.25.0

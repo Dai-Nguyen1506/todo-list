@@ -21,3 +21,4 @@ export function throttle(fn, limit = 100) {
     }
   };
 }
+

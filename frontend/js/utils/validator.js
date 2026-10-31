@@ -13,3 +13,4 @@ export function sanitizeText(text) {
   div.textContent = text;
   return div.innerHTML;
 }
+

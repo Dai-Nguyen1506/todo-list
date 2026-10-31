@@ -4,11 +4,10 @@ from sqlalchemy import select, update
 
 from app.crud.base import CRUDBase
 from app.models.user_model import User
-from app.schemas.user_schema import UserCreate
+from app.schemas.user_schema import UserCreate, UserUpdate
 
 class CRUDUser(CRUDBase[User]):
     async def get_all_users(self, page: int, limit: int, current_user_id: int, db: AsyncSession) -> List[User]:
-        """Lấy thông tin tất cả người dùng"""
         stmt = (
             select(self.model)
             .where(self.model.id != current_user_id)
@@ -17,29 +16,41 @@ class CRUDUser(CRUDBase[User]):
             .offset((page - 1) * limit)
         )
         result = await db.execute(stmt)
-        user_list = result.scalars().all()
-        return user_list
+        return list(result.scalars().all())
 
     async def get_by_email(self, db: AsyncSession, email: str) -> Optional[User]:
-        """Truy vấn người dùng bằng Email bất đồng bộ"""
         result = await db.execute(select(self.model).where(self.model.email == email))
         return result.scalars().first()
 
     async def create(self, db: AsyncSession, obj_in: UserCreate, hashed_password: str) -> User:
-        """Tạo mới một người dùng vào Database"""
         db_obj = User(
             email=obj_in.email,
             nickname=obj_in.nickname,
             password_hashed=hashed_password,
-            is_activate=True
+            is_activate=True,
+            theme_preference=getattr(obj_in, "theme_preference", "light") or "light",
+            timezone=getattr(obj_in, "timezone", "Asia/Ho_Chi_Minh") or "Asia/Ho_Chi_Minh"
         )
         db.add(db_obj)
         await db.commit()
         await db.refresh(db_obj)
         return db_obj
-    
+
+    async def update_profile(self, db: AsyncSession, user: User, obj_in: UserUpdate) -> User:
+        update_data = obj_in.model_dump(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(user, field, value)
+        await db.commit()
+        await db.refresh(user)
+        return user
+
+    async def update_password(self, db: AsyncSession, user: User, hashed_password: str) -> User:
+        user.password_hashed = hashed_password
+        await db.commit()
+        await db.refresh(user)
+        return user
+
     async def set_admin(self, email: str, db: AsyncSession) -> None:
-        """Thiết lập Admin cho các tài khoản email khác"""
         stmt = (
             update(self.model)
             .where(self.model.email == email)
@@ -48,6 +59,4 @@ class CRUDUser(CRUDBase[User]):
         await db.execute(stmt)
         await db.commit()
 
-
-# Khởi tạo một thực thể dùng chung (Singleton) cho toàn ứng dụng
 user_crud = CRUDUser(User)
