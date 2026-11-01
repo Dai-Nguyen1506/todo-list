@@ -13,7 +13,7 @@ export const settingsPage = {
     container.innerHTML = '';
 
     const page = createElement('div', { className: 'settings-page' });
-    const currentTheme = localStorage.getItem('theme') || 'light';
+    const currentTheme = ThemeManager.getSavedTheme();
     const user = store.get('user') || {};
 
     // 1. Appearance Section
@@ -22,10 +22,9 @@ export const settingsPage = {
       createElement('div', { className: 'theme-options-grid' }, [
         createElement('div', {
           className: `theme-card ${currentTheme === 'light' ? 'active' : ''}`,
-          onclick: async () => {
-            ThemeManager.apply('light');
+          onclick: () => {
+            ThemeManager.apply('light', true);
             store.set('theme', 'light');
-            await api.put('/users/me', { theme_preference: 'light' }).catch(() => {});
             settingsPage.render(container);
           }
         }, [
@@ -35,10 +34,9 @@ export const settingsPage = {
         ]),
         createElement('div', {
           className: `theme-card ${currentTheme === 'dark' ? 'active' : ''}`,
-          onclick: async () => {
-            ThemeManager.apply('dark');
+          onclick: () => {
+            ThemeManager.apply('dark', true);
             store.set('theme', 'dark');
-            await api.put('/users/me', { theme_preference: 'dark' }).catch(() => {});
             settingsPage.render(container);
           }
         }, [
@@ -48,8 +46,8 @@ export const settingsPage = {
         ]),
         createElement('div', {
           className: `theme-card ${currentTheme === 'system' ? 'active' : ''}`,
-          onclick: async () => {
-            ThemeManager.apply('system');
+          onclick: () => {
+            ThemeManager.apply('system', true);
             store.set('theme', 'system');
             settingsPage.render(container);
           }

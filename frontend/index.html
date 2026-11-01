@@ -3,13 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Planify - Quản lý thời gian & Công việc</title>
 
   <!-- 0ms Anti-FOUC Theme Initializer -->
   <script>
     (function() {
-      const theme = localStorage.getItem('planify_theme') || 'light';
+      const theme = localStorage.getItem('planify_theme') || localStorage.getItem('theme') || 'light';
       document.documentElement.setAttribute('data-theme', theme);
+      try {
+        localStorage.setItem('planify_theme', theme);
+        localStorage.setItem('theme', theme);
+      } catch (e) {}
     })();
   </script>
 
@@ -153,7 +160,7 @@
   <div id="toast-container"></div>
 
   <!-- JS BOOTSTRAPPER (ES MODULE) -->
-  <script type="module" src="js/app.js"></script>
+  <script type="module" src="js/app.js?v=2.2.0"></script>
 </body>
 </html>
 

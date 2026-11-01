@@ -14,7 +14,7 @@ class Store {
       calendarView: 'week', // 'day' | 'week' | 'month'
       selectedDate: new Date(),
       selectedTask: null,
-      theme: localStorage.getItem('theme') || 'light',
+      theme: localStorage.getItem('planify_theme') || localStorage.getItem('theme') || 'light',
       isAiPanelOpen: false
     };
     this.listeners = {};

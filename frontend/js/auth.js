@@ -1,5 +1,6 @@
 import { api } from './api.js';
 import { store } from './store.js';
+import { ThemeManager } from './theme.js';
 
 export class AuthManager {
   static isAuthenticated() {
@@ -49,15 +50,16 @@ export class AuthManager {
       const user = response?.data || response;
       store.set('user', user);
       
-      const localTheme = localStorage.getItem('planify_theme');
+      const localTheme = localStorage.getItem('planify_theme') || localStorage.getItem('theme');
       if (localTheme) {
+        ThemeManager.apply(localTheme, false);
         store.set('theme', localTheme);
         if (user?.theme_preference !== localTheme) {
           api.put('/users/me', { theme_preference: localTheme }).catch(() => {});
         }
       } else if (user?.theme_preference) {
+        ThemeManager.apply(user.theme_preference, false);
         store.set('theme', user.theme_preference);
-        localStorage.setItem('planify_theme', user.theme_preference);
       }
       return user;
     } catch (err) {
