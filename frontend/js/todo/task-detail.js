@@ -23,6 +23,16 @@ export class TaskDetail {
     this.container.innerHTML = '';
   }
 
+  notifyChanged(action = 'update') {
+    window.dispatchEvent(new CustomEvent('planify:data-changed', {
+      detail: { source: 'task-detail', action, type: 'task', id: this.task?.id }
+    }));
+    document.dispatchEvent(new CustomEvent('task-changed', {
+      detail: { action, task: this.task }
+    }));
+    if (this.onUpdate) this.onUpdate();
+  }
+
   render() {
     if (!this.task) {
       this.hide();
@@ -74,7 +84,7 @@ export class TaskDetail {
         await api.patch(`/tasks/${t.id}/complete`, { is_completed: nextState });
         t.is_completed = nextState;
         this.render();
-        if (this.onUpdate) this.onUpdate();
+        this.notifyChanged('complete');
       }
     }, [
       t.is_completed ? createElement('span', { style: { color: '#fff', fontSize: '12px' }, textContent: '✓' }) : null
@@ -90,7 +100,7 @@ export class TaskDetail {
         if (val) {
           await api.put(`/tasks/${t.id}`, { title: val });
           t.title = val;
-          if (this.onUpdate) this.onUpdate();
+          this.notifyChanged('update');
         }
       }
     });
@@ -103,7 +113,7 @@ export class TaskDetail {
         await api.patch(`/tasks/${t.id}/important`, { is_important: nextState });
         t.is_important = nextState;
         this.render();
-        if (this.onUpdate) this.onUpdate();
+        this.notifyChanged('important');
       }
     });
 
@@ -136,7 +146,7 @@ export class TaskDetail {
           step.is_completed = e.target.checked;
           await api.patch(`/tasks/${t.id}/steps/${step.id}/complete`, { is_completed: step.is_completed });
           this.render();
-          if (this.onUpdate) this.onUpdate();
+          this.notifyChanged('step_complete');
         }
       });
 
@@ -154,6 +164,7 @@ export class TaskDetail {
           if (val) {
             await api.put(`/tasks/${t.id}/steps/${step.id}`, { title: val });
             step.title = val;
+            this.notifyChanged('step_update');
           }
         }
       });
@@ -166,7 +177,7 @@ export class TaskDetail {
           await api.delete(`/tasks/${t.id}/steps/${step.id}`);
           t.steps = t.steps.filter(s => s.id !== step.id);
           this.render();
-          if (this.onUpdate) this.onUpdate();
+          this.notifyChanged('step_delete');
         }
       });
 
@@ -191,7 +202,7 @@ export class TaskDetail {
             t.steps.push(newStep);
             addStepInput.value = '';
             this.render();
-            if (this.onUpdate) this.onUpdate();
+            this.notifyChanged('step_add');
           }
         }
       }
@@ -214,7 +225,7 @@ export class TaskDetail {
         await api.patch(`/tasks/${t.id}/my-day`, { is_in_my_day: nextState });
         t.is_in_my_day = nextState;
         this.render();
-        if (this.onUpdate) this.onUpdate();
+        this.notifyChanged('my_day');
       }
     });
 
@@ -229,7 +240,7 @@ export class TaskDetail {
           const val = e.target.value || null;
           await api.put(`/tasks/${t.id}`, { due_date: val });
           t.due_date = val;
-          if (this.onUpdate) this.onUpdate();
+          this.notifyChanged('due_date');
         }
       })
     ]);
@@ -243,7 +254,7 @@ export class TaskDetail {
           const val = e.target.value || null;
           await api.put(`/tasks/${t.id}`, { recurrence_rule: val });
           t.recurrence_rule = val;
-          if (this.onUpdate) this.onUpdate();
+          this.notifyChanged('recurrence');
         }
       }, [
         createElement('option', { value: '', textContent: 'Không lặp lại', selected: !t.recurrence_rule }),
@@ -262,7 +273,7 @@ export class TaskDetail {
           const val = parseInt(e.target.value, 10);
           await api.put(`/tasks/${t.id}`, { list_id: val });
           t.list_id = val;
-          if (this.onUpdate) this.onUpdate();
+          this.notifyChanged('list_move');
         }
       }, taskLists.map(l => createElement('option', {
         value: l.id,
@@ -316,8 +327,7 @@ export class TaskDetail {
             await api.put(`/tasks/${t.id}`, updates);
             Object.assign(t, updates);
             this.render();
-            document.dispatchEvent(new CustomEvent('task-changed', { detail: { action: 'update', task: t } }));
-            if (this.onUpdate) this.onUpdate();
+            this.notifyChanged('time_blocking');
           }
         }),
         createElement('span', { textContent: 'Cả ngày' })
@@ -340,8 +350,7 @@ export class TaskDetail {
               const val = e.target.value;
               await api.put(`/tasks/${t.id}`, { start_time: val });
               t.start_time = val;
-              document.dispatchEvent(new CustomEvent('task-changed', { detail: { action: 'update', task: t } }));
-              if (this.onUpdate) this.onUpdate();
+              this.notifyChanged('time_blocking');
             }
           })
         ]),
@@ -355,8 +364,7 @@ export class TaskDetail {
               const val = e.target.value || null;
               await api.put(`/tasks/${t.id}`, { end_time: val });
               t.end_time = val;
-              document.dispatchEvent(new CustomEvent('task-changed', { detail: { action: 'update', task: t } }));
-              if (this.onUpdate) this.onUpdate();
+              this.notifyChanged('time_blocking');
             }
           })
         ])
@@ -374,8 +382,7 @@ export class TaskDetail {
             const mins = parseInt(e.target.value, 10);
             await api.put(`/tasks/${t.id}`, { duration_minutes: mins });
             t.duration_minutes = mins;
-            document.dispatchEvent(new CustomEvent('task-changed', { detail: { action: 'update', task: t } }));
-            if (this.onUpdate) this.onUpdate();
+            this.notifyChanged('time_blocking');
           }
         }, [
           createElement('option', { value: '15', textContent: '15 phút', selected: t.duration_minutes === 15 }),
@@ -454,8 +461,8 @@ export class TaskDetail {
         if (confirm(`Bạn có chắc chắn muốn xóa "${t.title}"?`)) {
           await api.delete(`/tasks/${t.id}`);
           Toast.success('Đã xóa công việc.');
+          this.notifyChanged('delete');
           this.hide();
-          if (this.onUpdate) this.onUpdate();
         }
       }
     });

@@ -133,6 +133,9 @@ export class MyDaySuggestions {
                 await api.patch(`/tasks/${t.id}/my-day`, { is_in_my_day: true });
                 t.is_in_my_day = true;
                 Toast.success(`Đã thêm "${t.title}" vào My Day`);
+                window.dispatchEvent(new CustomEvent('planify:data-changed', {
+                  detail: { source: 'todo-suggestions', action: 'my-day', type: 'task', id: t.id }
+                }));
                 document.dispatchEvent(new CustomEvent('task-changed', {
                   detail: { action: 'update', task: t }
                 }));

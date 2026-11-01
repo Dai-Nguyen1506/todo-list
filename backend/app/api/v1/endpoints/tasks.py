@@ -20,6 +20,9 @@ class ToggleImportantBody(BaseModel):
 class ToggleMyDayBody(BaseModel):
     is_in_my_day: bool
 
+class UpdatePositionBody(BaseModel):
+    position: int
+
 @router.get("", response_model=List[TaskResponse])
 async def get_tasks(
     list_id: Optional[int] = Query(None, description="Lọc theo ID danh sách"),
@@ -124,4 +127,17 @@ async def toggle_task_my_day(
     return await task_service.toggle_my_day(
         db, task_id=task_id, user_id=current_user.id, is_in_my_day=body.is_in_my_day
     )
+
+@router.patch("/{task_id}/position", response_model=TaskResponse)
+async def update_task_position(
+    task_id: int,
+    body: UpdatePositionBody,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Cập nhật vị trí sắp xếp công việc"""
+    return await task_service.update_task(
+        db, task_id=task_id, user_id=current_user.id, task_in=TaskUpdate(position=body.position)
+    )
+
 

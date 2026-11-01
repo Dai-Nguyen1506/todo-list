@@ -78,7 +78,7 @@ class CRUDTask(CRUDBase[Task]):
             color=obj_in.color,
             reminder_at=obj_in.reminder_at,
             recurrence_rule=obj_in.recurrence_rule,
-            position=0
+            position=getattr(obj_in, "position", 0) or 0
         )
         db.add(db_obj)
         await db.flush()

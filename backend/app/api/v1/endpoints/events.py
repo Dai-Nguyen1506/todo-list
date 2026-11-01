@@ -61,9 +61,17 @@ async def update_event(
 async def delete_event(
     event_id: int,
     scope: str = Query("this", pattern="^(this|following|all)$"),
+    occurrence_date: Optional[datetime] = Query(None, description="Anchor start time of the specific occurrence being cancelled/split"),
+    original_start: Optional[datetime] = Query(None, description="Alternative alias for occurrence_date"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Xóa sự kiện"""
-    await event_service.delete_event(db, event_id=event_id, user_id=current_user.id, scope=scope)
+    await event_service.delete_event(
+        db,
+        event_id=event_id,
+        user_id=current_user.id,
+        scope=scope,
+        occurrence_date=occurrence_date or original_start
+    )
 

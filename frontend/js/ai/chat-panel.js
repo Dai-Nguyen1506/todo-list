@@ -243,8 +243,11 @@ export class ChatPanel {
       this.messagesListEl.appendChild(assistantMsgEl);
       this.scrollToBottom();
 
-      // 4. If tools were executed, trigger cross-module sync
+      // 4. If tools were executed, trigger cross-module real-time reactive sync
       if (toolCalls && toolCalls.length > 0) {
+        window.dispatchEvent(new CustomEvent('planify:data-changed', {
+          detail: { source: 'ai-assistant', action: 'tool-executed', type: 'all', toolCalls }
+        }));
         document.dispatchEvent(new CustomEvent('task-changed', {
           detail: { action: 'ai-tool-executed', toolCalls }
         }));

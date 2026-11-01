@@ -3,6 +3,7 @@ import { formatDate } from '../utils/date.js';
 import { EventForm } from './event-form.js';
 import { api } from '../api.js';
 import { Toast } from '../components/toast.js';
+import { toggleCalendarTaskComplete } from './task-adapter.js';
 
 export class EventCard {
   static create({ event, onUpdate = null }) {
@@ -18,6 +19,9 @@ export class EventCard {
       },
       onclick: (e) => {
         e.stopPropagation();
+        if (card.dataset.justResized === 'true' || card.dataset.justDragged === 'true') {
+          return;
+        }
         if (isTask) {
           window.location.hash = '#todo';
         } else {
@@ -38,14 +42,10 @@ export class EventCard {
         onclick: async (e) => {
           e.stopPropagation();
           try {
-            await api.patch(`/tasks/${event.id}/complete`, { is_completed: !event.is_completed });
-            Toast.success('Đã cập nhật trạng thái công việc');
-            document.dispatchEvent(new CustomEvent('task-changed', {
-              detail: { action: 'update', taskId: event.id }
-            }));
+            await toggleCalendarTaskComplete(event.id, event.is_completed);
             if (onUpdate) onUpdate();
           } catch (err) {
-            Toast.error('Lỗi khi hoàn thành công việc');
+            // Handled in toggleCalendarTaskComplete
           }
         }
       });

@@ -1,5 +1,7 @@
 from typing import List, Optional
 from datetime import datetime, date, timedelta
+import calendar
+import re
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException, status
 from app.crud.task_crud import task_crud
@@ -67,24 +69,26 @@ class TaskService:
         # If completed and task has recurrence, generate the next cycle task!
         if is_completed and task.recurrence_rule:
             next_due_date = self._calculate_next_due_date(task.due_date, task.recurrence_rule)
-            new_task_in = TaskCreate(
-                title=task.title,
-                note=task.note,
-                list_id=task.list_id,
-                is_important=task.is_important,
-                is_in_my_day=False,
-                due_date=next_due_date,
-                due_time=task.due_time,
-                start_time=task.start_time,
-                end_time=task.end_time,
-                duration_minutes=task.duration_minutes,
-                is_all_day=task.is_all_day,
-                color=task.color,
-                reminder_at=None,
-                recurrence_rule=task.recurrence_rule,
-                steps=[TaskStepCreate(title=s.title, position=s.position) for s in task.steps]
-            )
-            await task_crud.create(db, user_id=user_id, obj_in=new_task_in)
+            if next_due_date is not None:
+                next_rrule = self._decrement_count_in_rrule(task.recurrence_rule)
+                new_task_in = TaskCreate(
+                    title=task.title,
+                    note=task.note,
+                    list_id=task.list_id,
+                    is_important=task.is_important,
+                    is_in_my_day=False,
+                    due_date=next_due_date,
+                    due_time=task.due_time,
+                    start_time=task.start_time,
+                    end_time=task.end_time,
+                    duration_minutes=task.duration_minutes,
+                    is_all_day=task.is_all_day,
+                    color=task.color,
+                    reminder_at=None,
+                    recurrence_rule=next_rrule,
+                    steps=[TaskStepCreate(title=s.title, position=s.position) for s in task.steps]
+                )
+                await task_crud.create(db, user_id=user_id, obj_in=new_task_in)
 
         return updated_task
 
@@ -122,24 +126,137 @@ class TaskService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy bước này.")
         await task_crud.delete_step(db, step_obj=step)
 
-    def _calculate_next_due_date(self, current_due: Optional[date], rrule_str: str) -> date:
+    @staticmethod
+    def _parse_rrule_params(rrule_str: str) -> dict:
+        params = {}
+        for part in rrule_str.split(";"):
+            part = part.strip()
+            if "=" in part:
+                k, v = part.split("=", 1)
+                params[k.strip().upper()] = v.strip().upper()
+        return params
+
+    @staticmethod
+    def _parse_until_date(until_val: str) -> Optional[date]:
+        try:
+            clean = until_val.replace("-", "")
+            if "T" in clean:
+                clean = clean.split("T")[0]
+            if len(clean) >= 8 and clean[:8].isdigit():
+                return date(int(clean[:4]), int(clean[4:6]), int(clean[6:8]))
+        except Exception:
+            pass
+        return None
+
+    @staticmethod
+    def _decrement_count_in_rrule(rrule_str: str) -> str:
+        parts = rrule_str.split(";")
+        new_parts = []
+        for p in parts:
+            p_strip = p.strip()
+            if p_strip.upper().startswith("COUNT="):
+                try:
+                    cnt = int(p_strip.split("=")[1])
+                    new_parts.append(f"COUNT={cnt - 1}")
+                except (ValueError, IndexError):
+                    new_parts.append(p)
+            else:
+                new_parts.append(p)
+        return ";".join(new_parts)
+
+    def _calculate_next_due_date(self, current_due: Optional[date], rrule_str: str) -> Optional[date]:
+        if not rrule_str:
+            return None
+
         base_date = current_due or date.today()
-        upper = rrule_str.upper()
-        if "FREQ=DAILY" in upper:
-            return base_date + timedelta(days=1)
-        elif "FREQ=WEEKLY" in upper:
-            return base_date + timedelta(days=7)
-        elif "FREQ=MONTHLY" in upper:
-            # Approximate next month
-            month = base_date.month + 1
-            year = base_date.year
-            if month > 12:
-                month = 1
-                year += 1
-            return base_date.replace(year=year, month=month)
-        elif "FREQ=YEARLY" in upper:
-            return base_date.replace(year=base_date.year + 1)
-        return base_date + timedelta(days=1)
+        params = self._parse_rrule_params(rrule_str)
+        freq = params.get("FREQ", "DAILY")
+
+        # Parse INTERVAL
+        try:
+            raw_interval = int(params.get("INTERVAL", 1))
+            interval = min(max(1, raw_interval), 1000)
+        except (ValueError, TypeError, OverflowError):
+            interval = 1
+
+        # Check COUNT: if 1 or less, current occurrence was the last
+        if "COUNT" in params:
+            try:
+                count = int(params["COUNT"])
+                if count <= 1:
+                    return None
+            except (ValueError, TypeError):
+                pass
+
+        # Check UNTIL boundary
+        until_date = None
+        if "UNTIL" in params:
+            until_date = self._parse_until_date(params["UNTIL"])
+
+        next_date: date
+
+        try:
+            if freq == "DAILY":
+                next_date = base_date + timedelta(days=interval)
+
+            elif freq == "WEEKLY":
+                byday_str = params.get("BYDAY")
+                if byday_str:
+                    day_map = {"MO": 0, "TU": 1, "WE": 2, "TH": 3, "FR": 4, "SA": 5, "SU": 6}
+                    bydays = []
+                    for raw_d in byday_str.split(","):
+                        d_clean = re.sub(r"^[+-]?\d+", "", raw_d.strip().upper())
+                        if d_clean in day_map:
+                            bydays.append(day_map[d_clean])
+                    bydays = sorted(list(set(bydays)))
+
+                    if bydays:
+                        curr_wd = base_date.weekday()
+                        future_days_this_week = [d for d in bydays if d > curr_wd]
+                        if future_days_this_week:
+                            next_wd = future_days_this_week[0]
+                            next_date = base_date + timedelta(days=next_wd - curr_wd)
+                        else:
+                            days_to_next_mon = 7 - curr_wd
+                            jump_days = days_to_next_mon + (interval - 1) * 7 + bydays[0]
+                            next_date = base_date + timedelta(days=jump_days)
+                    else:
+                        next_date = base_date + timedelta(days=7 * interval)
+                else:
+                    next_date = base_date + timedelta(days=7 * interval)
+
+            elif freq == "MONTHLY":
+                total_months = (base_date.year * 12 + (base_date.month - 1)) + interval
+                target_year = total_months // 12
+                if target_year > 9999:
+                    return None
+                target_month = (total_months % 12) + 1
+                max_days = calendar.monthrange(target_year, target_month)[1]
+                target_day = min(base_date.day, max_days)
+                next_date = date(target_year, target_month, target_day)
+
+            elif freq == "YEARLY":
+                target_year = base_date.year + interval
+                if target_year > 9999:
+                    return None
+                target_month = base_date.month
+                max_days = calendar.monthrange(target_year, target_month)[1]
+                target_day = min(base_date.day, max_days)
+                next_date = date(target_year, target_month, target_day)
+
+            else:
+                next_date = base_date + timedelta(days=interval)
+
+            if next_date.year > 9999:
+                return None
+        except (ValueError, OverflowError):
+            return None
+
+        # Enforce UNTIL boundary
+        if until_date and next_date > until_date:
+            return None
+
+        return next_date
 
 task_service = TaskService()
 

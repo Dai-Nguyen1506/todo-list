@@ -43,6 +43,7 @@ class EventUpdate(BaseModel):
     recurrence_rule: Optional[str] = Field(None, max_length=500)
     recurrence_end: Optional[datetime] = None
     is_cancelled: Optional[bool] = None
+    original_start: Optional[datetime] = None
     scope: Optional[str] = Field("this", pattern="^(this|following|all)$")
     reminders: Optional[List[EventReminderCreate]] = None
 

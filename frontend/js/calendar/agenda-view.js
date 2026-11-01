@@ -1,10 +1,12 @@
 import { createElement } from '../utils/dom.js';
-import { formatDate, isToday, isSameDay, getWeekdayName } from '../utils/date.js';
+import { formatDate, isToday, isSameDay, getWeekdayName, addDays } from '../utils/date.js';
 import { EventForm } from './event-form.js';
-import { store } from '../store.js';
+import { api } from '../api.js';
+import { Toast } from '../components/toast.js';
+import { toggleCalendarTaskComplete } from './task-adapter.js';
 
 export class AgendaView {
-  constructor(container, { date = new Date(), events = [], tasks = [], defaultCalendarId = null, onRefresh = null } = {}) {
+  constructor(container = null, { date = new Date(), events = [], tasks = [], defaultCalendarId = null, onRefresh = null } = {}) {
     this.container = container;
     this.date = new Date(date);
     this.events = events;
@@ -14,18 +16,20 @@ export class AgendaView {
     this.rangeDays = 30; // Display upcoming 30 days
   }
 
-  render() {
+  /**
+   * Render Agenda / Schedule View
+   * Accepts optional (container, events, currentDate) for caller flexibility
+   */
+  render(container = null, events = null, currentDate = null) {
+    if (container) this.container = container;
+    if (events) this.events = events;
+    if (currentDate) this.date = new Date(currentDate);
+
+    if (!this.container) return;
     this.container.innerHTML = '';
 
     const wrapper = createElement('div', {
-      style: {
-        height: '100%',
-        overflowY: 'auto',
-        padding: 'var(--space-md) var(--space-lg)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 'var(--space-lg)'
-      }
+      className: 'agenda-view-container'
     });
 
     const startDay = new Date(this.date);
@@ -33,11 +37,12 @@ export class AgendaView {
 
     const endDay = new Date(startDay);
     endDay.setDate(endDay.getDate() + this.rangeDays);
+    endDay.setHours(23, 59, 59, 999);
 
     // Combine all events and tasks that fall within range
     const allItems = [];
 
-    this.events.forEach(e => {
+    (this.events || []).forEach(e => {
       const s = new Date(e.start_at);
       if (s >= startDay && s <= endDay) {
         allItems.push({
@@ -48,7 +53,7 @@ export class AgendaView {
       }
     });
 
-    this.tasks.forEach(t => {
+    (this.tasks || []).forEach(t => {
       const s = new Date(t.start_at);
       if (s >= startDay && s <= endDay) {
         allItems.push({
@@ -62,8 +67,7 @@ export class AgendaView {
     // Group items by day YYYY-MM-DD
     const dayMap = new Map();
     for (let i = 0; i < this.rangeDays; i++) {
-      const d = new Date(startDay);
-      d.setDate(d.getDate() + i);
+      const d = addDays(startDay, i);
       const key = formatDate(d, 'YYYY-MM-DD');
       dayMap.set(key, { date: d, items: [] });
     }
@@ -87,7 +91,7 @@ export class AgendaView {
     // Render list of days that have items (or today even if empty)
     let totalItemsRendered = 0;
 
-    dayMap.forEach((group, key) => {
+    dayMap.forEach((group) => {
       const isTod = isToday(group.date);
       if (group.items.length === 0 && !isTod) {
         return; // Skip empty days except today
@@ -96,14 +100,7 @@ export class AgendaView {
       totalItemsRendered += group.items.length;
 
       const dayBlock = createElement('div', {
-        className: 'agenda-day-block',
-        style: {
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 'var(--space-xs)',
-          borderBottom: '1px solid var(--color-border-light)',
-          paddingBottom: 'var(--space-md)'
-        }
+        className: `agenda-day-block ${isTod ? 'today' : ''}`
       });
 
       // Day Header
@@ -111,25 +108,14 @@ export class AgendaView {
       const dateFormatted = formatDate(group.date, 'DD/MM/YYYY');
 
       const dayHeader = createElement('div', {
-        style: {
-          display: 'flex',
-          alignItems: 'center',
-          gap: 'var(--space-sm)',
-          fontSize: '14px',
-          fontWeight: isTod ? '700' : '600',
-          color: isTod ? 'var(--color-accent)' : 'var(--color-text-primary)'
-        }
+        className: 'agenda-day-header'
       }, [
-        createElement('span', { textContent: `📅 ${weekdayStr}, ${dateFormatted}` }),
+        createElement('span', {
+          className: 'agenda-day-title',
+          textContent: `📅 ${weekdayStr}, ${dateFormatted}`
+        }),
         isTod ? createElement('span', {
-          style: {
-            fontSize: '11px',
-            backgroundColor: 'var(--color-accent)',
-            color: '#fff',
-            padding: '2px 8px',
-            borderRadius: 'var(--radius-full)',
-            fontWeight: '600'
-          },
+          className: 'agenda-today-badge',
           textContent: 'Hôm nay'
         }) : null
       ]);
@@ -139,37 +125,25 @@ export class AgendaView {
       // Items Container
       if (group.items.length === 0) {
         dayBlock.appendChild(createElement('div', {
-          style: {
-            padding: '8px 12px',
-            fontSize: '13px',
-            color: 'var(--color-text-tertiary)',
-            fontStyle: 'italic'
-          },
+          className: 'agenda-day-empty',
           textContent: 'Không có sự kiện hoặc công việc nào.'
         }));
       } else {
         const itemsList = createElement('div', {
-          style: { display: 'flex', flexDirection: 'column', gap: '6px' }
+          className: 'agenda-items-list'
         });
 
         group.items.forEach(item => {
           const isEvent = item._type === 'event';
+          const isTask = item._type === 'task' || !!item.is_task;
           const startTimeStr = item.is_all_day ? 'Cả ngày' : formatDate(item._dateObj, 'HH:mm');
           const endTimeStr = (item.is_all_day || !item.end_at) ? '' : ` - ${formatDate(new Date(item.end_at), 'HH:mm')}`;
           const timeLabel = `${startTimeStr}${endTimeStr}`;
 
           const itemCard = createElement('div', {
-            className: 'agenda-item-card',
+            className: `agenda-item-card ${item.is_completed ? 'completed' : ''}`,
             style: {
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-md)',
-              padding: '10px 14px',
-              backgroundColor: 'var(--color-bg-secondary)',
-              borderRadius: 'var(--radius-md)',
-              borderLeft: `4px solid ${item.color || (isEvent ? 'var(--color-accent)' : '#0B8043')}`,
-              cursor: 'pointer',
-              transition: 'background-color 0.15s ease'
+              borderLeftColor: item.color || (isEvent ? 'var(--color-accent)' : '#0B8043')
             },
             onclick: () => {
               if (isEvent) {
@@ -179,55 +153,72 @@ export class AgendaView {
                   onCreated: this.onRefresh
                 });
               } else {
-                window.location.hash = 'todo';
+                window.location.hash = '#todo';
               }
             }
+          });
+
+          // Time Badge
+          const timeBadge = createElement('div', {
+            className: 'agenda-item-time',
+            textContent: timeLabel
+          });
+
+          // Checkbox for Task
+          let taskCheckbox = null;
+          if (isTask) {
+            taskCheckbox = createElement('span', {
+              className: 'agenda-task-checkbox',
+              textContent: item.is_completed ? '☑' : '☐',
+              title: item.is_completed ? 'Đánh dấu chưa hoàn thành' : 'Đánh dấu hoàn thành',
+              onclick: async (e) => {
+                e.stopPropagation();
+                try {
+                  await toggleCalendarTaskComplete(item.id, item.is_completed);
+                  if (this.onRefresh) this.onRefresh();
+                } catch (err) {
+                  // Handled in toggleCalendarTaskComplete
+                }
+              }
+            });
+          }
+
+          // Title & Details
+          const contentCol = createElement('div', {
+            className: 'agenda-item-content'
           }, [
-            // Time Badge
             createElement('div', {
-              style: {
-                minWidth: '100px',
-                fontSize: '12px',
-                fontWeight: '600',
-                color: item.is_all_day ? 'var(--color-accent)' : 'var(--color-text-secondary)'
-              },
-              textContent: timeLabel
-            }),
-            // Title & Details
-            createElement('div', {
-              style: { flex: 1, display: 'flex', flexDirection: 'column', gap: '2px', overflow: 'hidden' }
+              className: 'agenda-item-title-row'
             }, [
-              createElement('div', {
-                style: {
-                  fontWeight: '600',
-                  fontSize: '13px',
-                  color: 'var(--color-text-primary)',
-                  textDecoration: item.is_completed ? 'line-through' : 'none'
-                },
-                textContent: `${isEvent ? '🗓️' : '✅'} ${item.title}`
+              taskCheckbox,
+              createElement('span', {
+                className: 'agenda-item-icon',
+                textContent: isEvent ? '🗓️' : '✅'
               }),
-              item.location ? createElement('div', {
-                style: { fontSize: '11px', color: 'var(--color-text-tertiary)' },
-                textContent: `📍 ${item.location}`
-              }) : null,
-              item.recurrence_rule ? createElement('div', {
-                style: { fontSize: '11px', color: 'var(--color-accent)' },
-                textContent: '🔄 Lặp lại'
-              }) : null
+              createElement('span', {
+                className: `agenda-item-title ${item.is_completed ? 'strikethrough' : ''}`,
+                textContent: item.title
+              })
             ]),
-            // Type Pill
-            createElement('span', {
-              style: {
-                fontSize: '11px',
-                padding: '2px 8px',
-                borderRadius: '4px',
-                backgroundColor: 'var(--color-bg-tertiary)',
-                color: 'var(--color-text-secondary)',
-                fontWeight: '500'
-              },
-              textContent: isEvent ? 'Sự kiện' : 'Công việc'
-            })
+            item.location ? createElement('div', {
+              className: 'agenda-item-detail agenda-item-location',
+              textContent: `📍 ${item.location}`
+            }) : null,
+            item.recurrence_rule ? createElement('div', {
+              className: 'agenda-item-detail agenda-item-recurrence',
+              textContent: '🔄 Lặp lại'
+            }) : null
           ]);
+
+          // Type Pill
+          const typePill = createElement('span', {
+            className: `agenda-type-pill ${isEvent ? 'event' : 'task'}`,
+            textContent: isEvent ? 'Sự kiện' : 'Việc cần làm'
+          });
+
+          itemCard.appendChild(timeBadge);
+          itemCard.appendChild(contentCol);
+          itemCard.appendChild(typePill);
 
           itemsList.appendChild(itemCard);
         });
@@ -240,11 +231,7 @@ export class AgendaView {
 
     if (totalItemsRendered === 0) {
       wrapper.appendChild(createElement('div', {
-        style: {
-          padding: '48px 16px',
-          textAlign: 'center',
-          color: 'var(--color-text-secondary)'
-        },
+        className: 'agenda-empty-state',
         textContent: '🎉 Không có sự kiện hoặc công việc nào trong 30 ngày tới.'
       }));
     }
@@ -252,6 +239,9 @@ export class AgendaView {
     this.container.appendChild(wrapper);
   }
 
-  destroy() {}
+  destroy() {
+    if (this.container) {
+      this.container.innerHTML = '';
+    }
+  }
 }
-

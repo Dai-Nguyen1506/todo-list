@@ -1,0 +1,901 @@
+{
+  "summary": {
+    "total": 89,
+    "passed": 89,
+    "failed": 0,
+    "bugs_detected": 0,
+    "duration_sec": 121.91
+  },
+  "results": [
+    {
+      "name": "test_auth_duplicate_email_rejected",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Authentication & Profile",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 7.1
+    },
+    {
+      "name": "test_auth_invalid_password_rejected",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Authentication & Profile",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 210.59
+    },
+    {
+      "name": "test_user_profile_me",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Authentication & Profile",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 8.84
+    },
+    {
+      "name": "test_user_profile_update",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Authentication & Profile",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 9.76
+    },
+    {
+      "name": "test_user_profile_persisted",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Authentication & Profile",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 4.05
+    },
+    {
+      "name": "test_calendar_default_seeded",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Calendar Management",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 5.43
+    },
+    {
+      "name": "test_calendar_create_custom",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Calendar Management",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 8.98
+    },
+    {
+      "name": "test_calendar_update",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Calendar Management",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 10.45
+    },
+    {
+      "name": "test_calendar_prevent_delete_default",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Calendar Management",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 12.41
+    },
+    {
+      "name": "test_calendar_delete_custom",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Calendar Management",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 17.78
+    },
+    {
+      "name": "test_event_create_timed",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Events CRUD & Scheduling",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 13.94
+    },
+    {
+      "name": "test_event_create_all_day",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Events CRUD & Scheduling",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 14.84
+    },
+    {
+      "name": "test_event_get_by_id",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Events CRUD & Scheduling",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 7.92
+    },
+    {
+      "name": "test_events_query_range",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Events CRUD & Scheduling",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 9.29
+    },
+    {
+      "name": "test_event_delete",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Events CRUD & Scheduling",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 22.67
+    },
+    {
+      "name": "test_rrule_daily_event",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Recurrence Rules (RRULE)",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 12.93
+    },
+    {
+      "name": "test_rrule_weekly_byday",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Recurrence Rules (RRULE)",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 13.34
+    },
+    {
+      "name": "test_rrule_monthly_event",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Recurrence Rules (RRULE)",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 10.13
+    },
+    {
+      "name": "test_rrule_count_limit",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Recurrence Rules (RRULE)",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 13.42
+    },
+    {
+      "name": "test_rrule_yearly_event",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Recurrence Rules (RRULE)",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 12.91
+    },
+    {
+      "name": "test_rec_setup_parent",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Recurrence Exceptions & Scopes",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 11.97
+    },
+    {
+      "name": "test_rec_scope_this_update",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Recurrence Exceptions & Scopes",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 14.89
+    },
+    {
+      "name": "test_rec_parent_preserved",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Recurrence Exceptions & Scopes",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 6.86
+    },
+    {
+      "name": "test_rec_scope_all_update",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Recurrence Exceptions & Scopes",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 91.29
+    },
+    {
+      "name": "test_rec_scope_all_delete",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Recurrence Exceptions & Scopes",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 15.39
+    },
+    {
+      "name": "test_task_list_default_seeded",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Task Lists Management",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 8.02
+    },
+    {
+      "name": "test_task_list_create_custom",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Task Lists Management",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 9.99
+    },
+    {
+      "name": "test_task_list_update",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Task Lists Management",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 9.15
+    },
+    {
+      "name": "test_task_list_reorder",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Task Lists Management",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 17.68
+    },
+    {
+      "name": "test_task_list_delete_custom",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Task Lists Management",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 16.2
+    },
+    {
+      "name": "test_task_create_minimal",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Tasks CRUD & Details",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 13.05
+    },
+    {
+      "name": "test_task_create_full",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Tasks CRUD & Details",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 9.62
+    },
+    {
+      "name": "test_task_get_by_id",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Tasks CRUD & Details",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 6.95
+    },
+    {
+      "name": "test_task_toggle_complete",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Tasks CRUD & Details",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 56.73
+    },
+    {
+      "name": "test_task_delete",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Tasks CRUD & Details",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 17.2
+    },
+    {
+      "name": "test_step_setup_parent",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Subtask Steps Management",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 13.97
+    },
+    {
+      "name": "test_step_add",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Subtask Steps Management",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 12.59
+    },
+    {
+      "name": "test_step_update",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Subtask Steps Management",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 11.42
+    },
+    {
+      "name": "test_step_toggle_complete",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Subtask Steps Management",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 10.83
+    },
+    {
+      "name": "test_step_delete_and_count",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Subtask Steps Management",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 32.79
+    },
+    {
+      "name": "test_tb_create_time_blocked_task",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Task Time-Blocking",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 12.02
+    },
+    {
+      "name": "test_tb_verify_time_fields_persisted",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Task Time-Blocking",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 5.4
+    },
+    {
+      "name": "test_tb_update_time_slot",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Task Time-Blocking",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 11.69
+    },
+    {
+      "name": "test_tb_all_day_default_true",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Task Time-Blocking",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 12.4
+    },
+    {
+      "name": "test_tb_convert_to_time_blocked",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Task Time-Blocking",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 21.16
+    },
+    {
+      "name": "test_rec_task_create_daily",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Recurring Tasks & Cycles",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 9.75
+    },
+    {
+      "name": "test_rec_task_spawn_daily_cycle",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Recurring Tasks & Cycles",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 33.31
+    },
+    {
+      "name": "test_rec_task_spawn_weekly_cycle",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Recurring Tasks & Cycles",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 32.18
+    },
+    {
+      "name": "test_rec_task_steps_reset",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Recurring Tasks & Cycles",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 58.57
+    },
+    {
+      "name": "test_rec_task_inherit_time_blocks",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Recurring Tasks & Cycles",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 114.39
+    },
+    {
+      "name": "test_smart_list_my_day",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Smart Lists & Filters",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 17.07
+    },
+    {
+      "name": "test_smart_list_important",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Smart Lists & Filters",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 18.19
+    },
+    {
+      "name": "test_smart_list_planned",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Smart Lists & Filters",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 19.92
+    },
+    {
+      "name": "test_smart_list_all",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Smart Lists & Filters",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 8.1
+    },
+    {
+      "name": "test_filter_is_completed",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "Smart Lists & Filters",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 14.59
+    },
+    {
+      "name": "test_ai_create_conversation",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "AI Agent Conversations & Tools",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 9.86
+    },
+    {
+      "name": "test_ai_quick_chat_greeting",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "AI Agent Conversations & Tools",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 6839.16
+    },
+    {
+      "name": "test_ai_tool_create_event",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "AI Agent Conversations & Tools",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 15373.07
+    },
+    {
+      "name": "test_ai_tool_create_task",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "AI Agent Conversations & Tools",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 23348.21
+    },
+    {
+      "name": "test_ai_tool_get_schedule_summary",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "AI Agent Conversations & Tools",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 6684.98
+    },
+    {
+      "name": "test_ai_guardrail_math_rejection",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "AI Scope Guardrails & Throttling",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 8147.21
+    },
+    {
+      "name": "test_ai_guardrail_coding_rejection",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "AI Scope Guardrails & Throttling",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 6709.32
+    },
+    {
+      "name": "test_ai_conversation_messages_history",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "AI Scope Guardrails & Throttling",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 7523.83
+    },
+    {
+      "name": "test_ai_conversations_listing",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "AI Scope Guardrails & Throttling",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 13.59
+    },
+    {
+      "name": "test_ai_rate_limiter_rapid_burst",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "AI Scope Guardrails & Throttling",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 6717.25
+    },
+    {
+      "name": "test_sys_healthcheck",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "System Endpoints & Infrastructure",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 9.6
+    },
+    {
+      "name": "test_sys_root",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "System Endpoints & Infrastructure",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 10.59
+    },
+    {
+      "name": "test_sys_cors_preflight",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "System Endpoints & Infrastructure",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 1.76
+    },
+    {
+      "name": "test_sys_dashboard_today",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "System Endpoints & Infrastructure",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 17.22
+    },
+    {
+      "name": "test_sys_frontend_html_served",
+      "tier": "Tier 1: Feature Coverage",
+      "category": "System Endpoints & Infrastructure",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 14.16
+    },
+    {
+      "name": "test_boundary_task_title_limits",
+      "tier": "Tier 2: Boundary Cases",
+      "category": "Limits & String Lengths",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 27.95
+    },
+    {
+      "name": "test_boundary_event_title_limits",
+      "tier": "Tier 2: Boundary Cases",
+      "category": "Limits & String Lengths",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 21.96
+    },
+    {
+      "name": "test_boundary_inverted_event_times_auto_adjust",
+      "tier": "Tier 2: Boundary Cases",
+      "category": "Date Math & Self-Healing",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 10.19
+    },
+    {
+      "name": "test_boundary_concurrent_event_collision",
+      "tier": "Tier 2: Boundary Cases",
+      "category": "Concurrency & Collision",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 40.1
+    },
+    {
+      "name": "test_boundary_month_end_date_clamping",
+      "tier": "Tier 2: Boundary Cases",
+      "category": "Recurrence Date Clamping",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 34.78
+    },
+    {
+      "name": "test_boundary_leap_year_date_clamping",
+      "tier": "Tier 2: Boundary Cases",
+      "category": "Recurrence Date Clamping",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 35.94
+    },
+    {
+      "name": "test_boundary_timezone_local_iso_format",
+      "tier": "Tier 2: Boundary Cases",
+      "category": "Timezone & Formatting",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 14.3
+    },
+    {
+      "name": "test_boundary_subtask_step_arbitrary_positions",
+      "tier": "Tier 2: Boundary Cases",
+      "category": "Step Ordering",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 53.7
+    },
+    {
+      "name": "test_boundary_reorder_empty_and_invalid",
+      "tier": "Tier 2: Boundary Cases",
+      "category": "Input Boundaries",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 11.3
+    },
+    {
+      "name": "test_combo_ai_task_calendar_complete_next_cycle",
+      "tier": "Tier 3: Combinations",
+      "category": "AI ↔ Calendar ↔ To-Do",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 14138.45
+    },
+    {
+      "name": "test_combo_recurring_event_exception_ai_sync",
+      "tier": "Tier 3: Combinations",
+      "category": "Recurrence ↔ AI Agent",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 9986.56
+    },
+    {
+      "name": "test_combo_custom_list_deletion_cascades",
+      "tier": "Tier 3: Combinations",
+      "category": "Custom Lists ↔ Tasks",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 1887.31
+    },
+    {
+      "name": "test_combo_move_task_preserves_metadata",
+      "tier": "Tier 3: Combinations",
+      "category": "To-Do ↔ Smart Lists",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 65.93
+    },
+    {
+      "name": "test_combo_calendar_color_sync",
+      "tier": "Tier 3: Combinations",
+      "category": "Calendars ↔ Dashboard",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 79.11
+    },
+    {
+      "name": "test_combo_subtask_step_progression_metrics",
+      "tier": "Tier 3: Combinations",
+      "category": "Subtasks ↔ Task Progress",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 83.94
+    },
+    {
+      "name": "test_scenario_1_new_user_onboarding_and_routine_setup",
+      "tier": "Tier 4: Real-World Scenarios",
+      "category": "User Journey",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 660.84
+    },
+    {
+      "name": "test_scenario_2_executive_daily_schedule_and_ai_optimization",
+      "tier": "Tier 4: Real-World Scenarios",
+      "category": "Executive Routine",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 9416.04
+    },
+    {
+      "name": "test_scenario_3_recurrence_schedule_lifecycle_and_exceptions",
+      "tier": "Tier 4: Real-World Scenarios",
+      "category": "Recurrence Evolution",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 683.66
+    },
+    {
+      "name": "test_scenario_4_sprint_cleanup_and_reorganization",
+      "tier": "Tier 4: Real-World Scenarios",
+      "category": "Sprint Reorganization",
+      "passed": true,
+      "is_bug": false,
+      "bug_ref": null,
+      "error": null,
+      "duration_ms": 614.11
+    }
+  ]
+}

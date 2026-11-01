@@ -2,6 +2,7 @@ import { createElement } from '../utils/dom.js';
 
 export class Dropdown {
   static activeMenu = null;
+  static outsideHandler = null;
 
   static show({ triggerEl, anchorEl, items = [] }) {
     this.close();
@@ -42,18 +43,23 @@ export class Dropdown {
     document.body.appendChild(menu);
     this.activeMenu = menu;
 
-    const handleOutsideClick = (e) => {
+    this.outsideHandler = (e) => {
       if (!menu.contains(e.target) && !targetEl.contains(e.target)) {
         Dropdown.close();
-        document.removeEventListener('click', handleOutsideClick);
       }
     };
     setTimeout(() => {
-      document.addEventListener('click', handleOutsideClick);
+      if (this.activeMenu === menu && this.outsideHandler) {
+        document.addEventListener('click', this.outsideHandler);
+      }
     }, 0);
   }
 
   static close() {
+    if (this.outsideHandler) {
+      document.removeEventListener('click', this.outsideHandler);
+      this.outsideHandler = null;
+    }
     if (this.activeMenu && this.activeMenu.parentNode) {
       this.activeMenu.parentNode.removeChild(this.activeMenu);
       this.activeMenu = null;

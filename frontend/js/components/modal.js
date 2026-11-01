@@ -2,6 +2,7 @@ import { createElement } from '../utils/dom.js';
 
 export class Modal {
   static activeModal = null;
+  static modalStack = [];
 
   static open({
     title = '',
@@ -12,10 +13,11 @@ export class Modal {
     onConfirm = null,
     onCancel = null,
     width = '520px',
-    onClose = null
+    onClose = null,
+    allowStack = false
   } = {}) {
-    // If there is an existing modal open, close it first
-    if (Modal.activeModal) {
+    // If stacking not allowed and there is an existing modal open, close it first
+    if (!allowStack && Modal.activeModal) {
       Modal.activeModal.close();
     }
 
@@ -62,7 +64,6 @@ export class Modal {
     }
 
     const modal = new Modal({ title, content, footer: footerEl, width, onClose });
-    Modal.activeModal = modal;
     modal.open();
     return modal;
   }
@@ -70,7 +71,6 @@ export class Modal {
   static close() {
     if (Modal.activeModal) {
       Modal.activeModal.close();
-      Modal.activeModal = null;
     }
   }
 
@@ -86,9 +86,12 @@ export class Modal {
 
   open() {
     const container = document.getElementById('modal-container') || document.body;
+    const stackDepth = Modal.modalStack.length;
+    const zIndex = stackDepth > 0 ? 500 + stackDepth * 10 : null;
 
     this.backdrop = createElement('div', {
       className: 'modal-backdrop',
+      style: zIndex ? { zIndex: `${zIndex}` } : {},
       onclick: (e) => {
         if (e.target === this.backdrop) this.close();
       }
@@ -134,6 +137,7 @@ export class Modal {
     this.backdrop.appendChild(dialog);
     container.appendChild(this.backdrop);
 
+    Modal.modalStack.push(this);
     Modal.activeModal = this;
     document.addEventListener('keydown', this.handleKeyDown);
     return dialog;
@@ -141,7 +145,9 @@ export class Modal {
 
   handleKeyDown(e) {
     if (e.key === 'Escape') {
-      this.close();
+      if (Modal.modalStack[Modal.modalStack.length - 1] === this) {
+        this.close();
+      }
     }
   }
 
@@ -150,9 +156,8 @@ export class Modal {
       this.backdrop.parentNode.removeChild(this.backdrop);
       this.backdrop = null;
     }
-    if (Modal.activeModal === this) {
-      Modal.activeModal = null;
-    }
+    Modal.modalStack = Modal.modalStack.filter(m => m !== this);
+    Modal.activeModal = Modal.modalStack[Modal.modalStack.length - 1] || null;
     document.removeEventListener('keydown', this.handleKeyDown);
     if (typeof this.onClose === 'function') {
       this.onClose();

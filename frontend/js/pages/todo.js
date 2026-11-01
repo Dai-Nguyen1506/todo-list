@@ -64,6 +64,7 @@ export const todoPage = {
     // Sort Dropdown button
     const sortBtn = createElement('button', {
       className: 'btn btn-secondary btn-sm',
+      id: 'btn-sort-tasks',
       textContent: '⇅ Sắp xếp',
       onclick: (e) => this.showSortDropdown(e)
     });
@@ -127,8 +128,9 @@ export const todoPage = {
 
     // Event listeners
     this.setupShortcuts();
-    this.taskChangedListener = () => this.fetchTasks();
-    document.addEventListener('task-changed', this.taskChangedListener);
+    this.dataChangedListener = () => this.fetchTasks();
+    window.addEventListener('planify:data-changed', this.dataChangedListener);
+    document.addEventListener('task-changed', this.dataChangedListener);
 
     // Initial data fetch
     await this.fetchTasks();
@@ -220,6 +222,9 @@ export const todoPage = {
     try {
       const updated = await api.patch(`/tasks/${task.id}/complete`, { is_completed: isCompleted });
       task.is_completed = isCompleted;
+      window.dispatchEvent(new CustomEvent('planify:data-changed', {
+        detail: { source: 'todo', action: 'complete', type: 'task', id: task.id, is_completed: isCompleted }
+      }));
       document.dispatchEvent(new CustomEvent('task-changed', {
         detail: { action: 'update', task: updated }
       }));
@@ -233,6 +238,9 @@ export const todoPage = {
     try {
       const updated = await api.patch(`/tasks/${task.id}/important`, { is_important: isImportant });
       task.is_important = isImportant;
+      window.dispatchEvent(new CustomEvent('planify:data-changed', {
+        detail: { source: 'todo', action: 'important', type: 'task', id: task.id, is_important: isImportant }
+      }));
       document.dispatchEvent(new CustomEvent('task-changed', {
         detail: { action: 'update', task: updated }
       }));
@@ -242,13 +250,30 @@ export const todoPage = {
     }
   },
 
-  reorderTasks(sourceId, targetId) {
+  async reorderTasks(sourceId, targetId) {
     const srcIdx = this.tasks.findIndex(t => t.id === sourceId);
     const trgIdx = this.tasks.findIndex(t => t.id === targetId);
     if (srcIdx !== -1 && trgIdx !== -1) {
       const [moved] = this.tasks.splice(srcIdx, 1);
       this.tasks.splice(trgIdx, 0, moved);
+
+      // Reassign sequential positions to preserve this custom manual ordering
+      this.tasks.forEach((t, idx) => {
+        t.position = idx;
+      });
+      this.sortBy = 'default';
       this.updateComponents();
+
+      try {
+        const items = this.tasks.map((t, idx) => ({ id: t.id, position: idx }));
+        await api.put('/tasks/reorder', { items });
+        window.dispatchEvent(new CustomEvent('planify:data-changed', {
+          detail: { source: 'todo', action: 'reorder', type: 'task' }
+        }));
+      } catch (err) {
+        console.error('Failed to persist task reorder', err);
+        Toast.error('Không thể lưu thứ tự công việc');
+      }
     }
   },
 
@@ -313,8 +338,10 @@ export const todoPage = {
     if (this.keyHandler) {
       document.removeEventListener('keydown', this.keyHandler);
     }
-    if (this.taskChangedListener) {
-      document.removeEventListener('task-changed', this.taskChangedListener);
+    if (this.dataChangedListener) {
+      window.removeEventListener('planify:data-changed', this.dataChangedListener);
+      document.removeEventListener('task-changed', this.dataChangedListener);
+      this.dataChangedListener = null;
     }
     if (this.container) {
       this.container.innerHTML = '';

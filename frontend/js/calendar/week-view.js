@@ -2,7 +2,96 @@ import { createElement } from '../utils/dom.js';
 import { TimeIndicator } from './time-indicator.js';
 import { EventForm } from './event-form.js';
 import { EventCard } from './event-card.js';
-import { getStartOfWeek, addDays, getWeekdayName, isToday, isSameDay } from '../utils/date.js';
+import { getStartOfWeek, addDays, getWeekdayName, isToday, isSameDay, formatDate, toLocalISOString } from '../utils/date.js';
+import { api } from '../api.js';
+import { Toast } from '../components/toast.js';
+
+/**
+ * Helper: Calculate side-by-side columns for overlapping timed events (BUG-15)
+ */
+export function layoutTimedItems(items, hourHeight = 60) {
+  if (!items || items.length === 0) return [];
+
+  const elements = items.map(item => {
+    const s = new Date(item.start_at);
+    const end = new Date(item.end_at);
+    const startMin = s.getHours() * 60 + s.getMinutes();
+    const durMin = Math.max(15, (end.getTime() - s.getTime()) / 60000);
+    const endMin = startMin + durMin;
+    return {
+      item,
+      startAt: s,
+      endAt: end,
+      startMin,
+      endMin,
+      durMin,
+      topPx: (startMin / 60) * hourHeight,
+      heightPx: (durMin / 60) * hourHeight - 2,
+      col: 0,
+      totalCols: 1
+    };
+  });
+
+  // Sort by start time asc, then duration desc
+  elements.sort((a, b) => {
+    if (a.startMin !== b.startMin) return a.startMin - b.startMin;
+    return b.durMin - a.durMin;
+  });
+
+  // Partition into overlapping clusters
+  const clusters = [];
+  let currentCluster = [];
+  let clusterEnd = -1;
+
+  for (const el of elements) {
+    if (currentCluster.length === 0) {
+      currentCluster.push(el);
+      clusterEnd = el.endMin;
+    } else {
+      if (el.startMin < clusterEnd) {
+        currentCluster.push(el);
+        clusterEnd = Math.max(clusterEnd, el.endMin);
+      } else {
+        clusters.push(currentCluster);
+        currentCluster = [el];
+        clusterEnd = el.endMin;
+      }
+    }
+  }
+  if (currentCluster.length > 0) {
+    clusters.push(currentCluster);
+  }
+
+  // Assign columns within each cluster
+  for (const cluster of clusters) {
+    const columns = [];
+    for (const el of cluster) {
+      let placed = false;
+      for (let i = 0; i < columns.length; i++) {
+        const lastInCol = columns[i][columns[i].length - 1];
+        if (el.startMin >= lastInCol.endMin) {
+          columns[i].push(el);
+          el.col = i;
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) {
+        el.col = columns.length;
+        columns.push([el]);
+      }
+    }
+
+    const totalCols = columns.length;
+    for (const el of cluster) {
+      el.totalCols = totalCols;
+      el.widthPercent = 100 / totalCols;
+      el.leftPercent = el.col * el.widthPercent;
+    }
+  }
+
+  return elements;
+}
 
 export class WeekView {
   constructor(container, { date = new Date(), events = [], tasks = [], defaultCalendarId = null, onRefresh = null } = {}) {
@@ -26,11 +115,13 @@ export class WeekView {
     }
 
     const weekWrapper = createElement('div', {
+      className: 'week-view-wrapper',
       style: { display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }
     });
 
     // 1. Column Headers (Weekday names + Day numbers)
     const headerRow = createElement('div', {
+      className: 'week-header-row',
       style: {
         display: 'flex',
         borderBottom: '1px solid var(--color-border)',
@@ -42,6 +133,7 @@ export class WeekView {
     weekDays.forEach((d, idx) => {
       const isTod = isToday(d);
       const colHeader = createElement('div', {
+        className: `week-header-col ${isTod ? 'today' : ''}`,
         style: {
           flex: 1,
           padding: '8px 4px',
@@ -73,6 +165,7 @@ export class WeekView {
 
     // 2. All-Day Section across 7 days
     const allDaySection = createElement('div', {
+      className: 'week-allday-section',
       style: {
         display: 'flex',
         borderBottom: '1px solid var(--color-border)',
@@ -82,6 +175,7 @@ export class WeekView {
     });
 
     const allDayLabel = createElement('div', {
+      className: 'week-allday-label',
       style: {
         width: '64px',
         fontSize: '11px',
@@ -95,11 +189,13 @@ export class WeekView {
     });
 
     const allDayGrid = createElement('div', {
+      className: 'week-allday-grid',
       style: { flex: 1, display: 'flex' }
     });
 
     weekDays.forEach((d, idx) => {
       const col = createElement('div', {
+        className: 'week-allday-col',
         style: {
           flex: 1,
           padding: '4px',
@@ -133,11 +229,13 @@ export class WeekView {
 
     // 3. Scrollable Timed Grid
     const gridScroll = createElement('div', {
+      className: 'week-grid-scroll',
       style: { flex: 1, overflowY: 'auto', display: 'flex', position: 'relative' }
     });
 
-    // Gutter
+    // Time Gutter (00:00 - 23:00)
     const timeGutter = createElement('div', {
+      className: 'week-time-gutter',
       style: { width: '64px', borderRight: '1px solid var(--color-border)', flexShrink: 0 }
     });
     for (let h = 0; h < 24; h++) {
@@ -156,12 +254,15 @@ export class WeekView {
 
     // 7 Columns
     const columnsContainer = createElement('div', {
+      className: 'week-columns-container',
       style: { flex: 1, display: 'flex', height: `${24 * this.hourHeight}px`, position: 'relative' }
     });
 
     weekDays.forEach((d, idx) => {
       const isTod = isToday(d);
       const dayCol = createElement('div', {
+        className: `week-day-col ${isTod ? 'today' : ''}`,
+        dataset: { date: formatDate(d, 'YYYY-MM-DD') },
         style: {
           flex: 1,
           position: 'relative',
@@ -170,9 +271,11 @@ export class WeekView {
         }
       });
 
-      // Hour horizontal slots
+      // Hour horizontal slots for click-to-create
       for (let h = 0; h < 24; h++) {
         const slot = createElement('div', {
+          className: 'week-hour-slot',
+          dataset: { hour: h },
           style: {
             position: 'absolute',
             top: `${h * this.hourHeight}px`,
@@ -204,27 +307,34 @@ export class WeekView {
         this.timeIndicator.mount();
       }
 
-      // Render timed events and timed tasks on this day
+      // Render timed events and timed tasks on this day with Collision Column Packing (BUG-15)
       const dayEvents = this.events.filter(e => !e.is_all_day && isSameDay(e.start_at, d));
       const dayTasks = this.tasks.filter(t => !t.is_all_day && isSameDay(t.start_at, d));
-      const allTimedItems = [...dayEvents, ...dayTasks].sort((a, b) => new Date(a.start_at) - new Date(b.start_at));
+      const allTimedItems = [...dayEvents, ...dayTasks];
 
-      allTimedItems.forEach(item => {
-        const s = new Date(item.start_at);
-        const end = new Date(item.end_at);
-        const topMinutes = s.getHours() * 60 + s.getMinutes();
-        const durationMins = Math.max(30, (end.getTime() - s.getTime()) / 60000);
+      const packedElements = layoutTimedItems(allTimedItems, this.hourHeight);
 
-        const topPx = (topMinutes / 60) * this.hourHeight;
-        const heightPx = (durationMins / 60) * this.hourHeight - 2;
+      packedElements.forEach(el => {
+        const card = EventCard.create({ event: el.item, onUpdate: this.onRefresh });
 
-        const card = EventCard.create({ event: item, onUpdate: this.onRefresh });
-        card.style.top = `${topPx}px`;
-        card.style.height = `${heightPx}px`;
-        card.style.left = '2px';
-        card.style.right = '4px';
+        card.style.position = 'absolute';
+        card.style.top = `${el.topPx}px`;
+        card.style.height = `${el.heightPx}px`;
+        card.style.left = `calc(${el.leftPercent}% + 2px)`;
+        card.style.width = `calc(${el.widthPercent}% - 4px)`;
+        card.style.right = 'auto';
+
+        // 1. Enable Native HTML5 Drag and Drop Move
+        this.attachCardDraggable(card, el);
+
+        // 2. Attach Bottom-Edge Resize Handle
+        this.attachCardResizeHandle(card, el);
+
         dayCol.appendChild(card);
       });
+
+      // Enable Drag and Drop Drop-Target on Day Column
+      this.attachDayColDrop(dayCol, d);
 
       columnsContainer.appendChild(dayCol);
     });
@@ -237,8 +347,202 @@ export class WeekView {
     weekWrapper.appendChild(gridScroll);
     this.container.appendChild(weekWrapper);
 
-    const scrollHour = Math.max(0, new Date().getHours() - 1);
-    gridScroll.scrollTop = scrollHour * this.hourHeight;
+    // Auto-scroll to working hours (07:00 or current hour - 1) (BUG-15)
+    const targetHour = 7;
+    gridScroll.scrollTop = targetHour * this.hourHeight;
+  }
+
+  /**
+   * Attach Drag & Drop functionality to an event card
+   */
+  attachCardDraggable(card, el) {
+    card.setAttribute('draggable', 'true');
+
+    card.addEventListener('dragstart', (e) => {
+      e.stopPropagation();
+      const dragPayload = {
+        id: el.item.id,
+        is_task: !!el.item.is_task,
+        durationMinutes: el.durMin,
+        title: el.item.title,
+        start_at: el.item.start_at,
+        end_at: el.item.end_at,
+        color: el.item.color
+      };
+      e.dataTransfer.setData('text/plain', JSON.stringify(dragPayload));
+      e.dataTransfer.effectAllowed = 'move';
+      card.classList.add('event-dragging');
+    });
+
+    card.addEventListener('dragend', () => {
+      card.classList.remove('event-dragging');
+      card.dataset.justDragged = 'true';
+      setTimeout(() => { card.dataset.justDragged = 'false'; }, 200);
+      document.querySelectorAll('.day-col-dragover').forEach(c => c.classList.remove('day-col-dragover'));
+    });
+  }
+
+  /**
+   * Attach bottom-edge resize handle to adjust duration in 15-min increments
+   */
+  attachCardResizeHandle(card, el) {
+    const resizeHandle = createElement('div', {
+      className: 'event-resize-handle',
+      title: 'Kéo để thay đổi thời lượng (bước nhảy 15 phút)'
+    });
+    card.appendChild(resizeHandle);
+
+    resizeHandle.addEventListener('mousedown', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+
+      const startY = e.clientY;
+      const initialHeight = parseFloat(card.style.height) || (el.durMin / 60) * this.hourHeight;
+      const initialDuration = el.durMin;
+      const startAt = new Date(el.item.start_at);
+      let curSnappedHeight = initialHeight;
+
+      card.classList.add('event-resizing');
+
+      const onMouseMove = (moveEvent) => {
+        moveEvent.preventDefault();
+        const deltaY = moveEvent.clientY - startY;
+        const rawHeight = Math.max(15, initialHeight + deltaY);
+        const pxPer15 = this.hourHeight / 4;
+        curSnappedHeight = Math.max(pxPer15, Math.round(rawHeight / pxPer15) * pxPer15);
+        card.style.height = `${curSnappedHeight - 2}px`;
+
+        const curDurationMins = Math.round((curSnappedHeight / this.hourHeight) * 60);
+        const tempEnd = new Date(startAt.getTime() + curDurationMins * 60000);
+        const timeSpanEl = card.querySelector('.event-card-time');
+        if (timeSpanEl) {
+          timeSpanEl.textContent = `${formatDate(startAt, 'HH:mm')} - ${formatDate(tempEnd, 'HH:mm')}`;
+        }
+      };
+
+      const onMouseUp = async () => {
+        window.removeEventListener('mousemove', onMouseMove);
+        window.removeEventListener('mouseup', onMouseUp);
+        card.classList.remove('event-resizing');
+
+        card.dataset.justResized = 'true';
+        setTimeout(() => { card.dataset.justResized = 'false'; }, 200);
+
+        const finalDurationMins = Math.max(15, Math.round((curSnappedHeight / this.hourHeight) * 60));
+
+        if (finalDurationMins === initialDuration) {
+          return;
+        }
+
+        const newEnd = new Date(startAt.getTime() + finalDurationMins * 60000);
+
+        try {
+          if (el.item.is_task) {
+            await api.put(`/tasks/${el.item.id}`, {
+              end_time: `${String(newEnd.getHours()).padStart(2, '0')}:${String(newEnd.getMinutes()).padStart(2, '0')}:00`,
+              duration_minutes: finalDurationMins
+            });
+            Toast.success(`Đã cập nhật thời lượng: ${finalDurationMins} phút`);
+            window.dispatchEvent(new CustomEvent('planify:data-changed', {
+              detail: { source: 'calendar-week', action: 'resize', type: 'task', id: el.item.id }
+            }));
+            document.dispatchEvent(new CustomEvent('task-changed', {
+              detail: { action: 'update', taskId: el.item.id }
+            }));
+          } else {
+            await api.put(`/events/${el.item.id}`, {
+              start_at: toLocalISOString(startAt),
+              end_at: toLocalISOString(newEnd)
+            });
+            Toast.success(`Đã cập nhật thời lượng: ${finalDurationMins} phút`);
+            window.dispatchEvent(new CustomEvent('planify:data-changed', {
+              detail: { source: 'calendar-week', action: 'resize', type: 'event', id: el.item.id }
+            }));
+          }
+          if (this.onRefresh) this.onRefresh();
+        } catch (err) {
+          Toast.error(err.message || 'Lỗi khi cập nhật thời lượng.');
+          if (this.onRefresh) this.onRefresh();
+        }
+      };
+
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('mouseup', onMouseUp);
+    });
+  }
+
+  /**
+   * Handle dropping an event onto a day column
+   */
+  attachDayColDrop(dayCol, targetDate) {
+    dayCol.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      dayCol.classList.add('day-col-dragover');
+    });
+
+    dayCol.addEventListener('dragleave', (e) => {
+      if (!dayCol.contains(e.relatedTarget)) {
+        dayCol.classList.remove('day-col-dragover');
+      }
+    });
+
+    dayCol.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dayCol.classList.remove('day-col-dragover');
+
+      let data;
+      try {
+        data = JSON.parse(e.dataTransfer.getData('text/plain'));
+      } catch (err) {
+        return;
+      }
+      if (!data || !data.id) return;
+
+      const rect = dayCol.getBoundingClientRect();
+      const offsetY = Math.max(0, e.clientY - rect.top);
+      const totalMinutes = (offsetY / this.hourHeight) * 60;
+      const snappedMinutes = Math.min(23 * 60 + 45, Math.max(0, Math.round(totalMinutes / 15) * 15));
+      const newHour = Math.floor(snappedMinutes / 60);
+      const newMin = snappedMinutes % 60;
+
+      const newStart = new Date(targetDate);
+      newStart.setHours(newHour, newMin, 0, 0);
+      const duration = data.durationMinutes || 60;
+      const newEnd = new Date(newStart.getTime() + duration * 60000);
+
+      try {
+        if (data.is_task) {
+          await api.put(`/tasks/${data.id}`, {
+            due_date: formatDate(newStart, 'YYYY-MM-DD'),
+            start_time: `${String(newHour).padStart(2, '0')}:${String(newMin).padStart(2, '0')}:00`,
+            end_time: `${String(newEnd.getHours()).padStart(2, '0')}:${String(newEnd.getMinutes()).padStart(2, '0')}:00`,
+            is_all_day: false,
+            duration_minutes: duration
+          });
+          Toast.success(`Đã dời công việc sang ${formatDate(newStart, 'HH:mm')}`);
+          window.dispatchEvent(new CustomEvent('planify:data-changed', {
+            detail: { source: 'calendar-week', action: 'move', type: 'task', id: data.id }
+          }));
+          document.dispatchEvent(new CustomEvent('task-changed', {
+            detail: { action: 'update', taskId: data.id }
+          }));
+        } else {
+          await api.put(`/events/${data.id}`, {
+            start_at: toLocalISOString(newStart),
+            end_at: toLocalISOString(newEnd)
+          });
+          Toast.success(`Đã dời sự kiện sang ${formatDate(newStart, 'HH:mm')}`);
+          window.dispatchEvent(new CustomEvent('planify:data-changed', {
+            detail: { source: 'calendar-week', action: 'move', type: 'event', id: data.id }
+          }));
+        }
+        if (this.onRefresh) this.onRefresh();
+      } catch (err) {
+        Toast.error(err.message || 'Lỗi khi cập nhật thời gian.');
+      }
+    });
   }
 
   destroy() {
@@ -248,4 +552,3 @@ export class WeekView {
     }
   }
 }
-

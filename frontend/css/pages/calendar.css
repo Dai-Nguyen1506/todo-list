@@ -87,17 +87,28 @@
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: pointer;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition: box-shadow var(--transition-fast), opacity var(--transition-fast);
   color: #ffffff;
   user-select: none;
   z-index: 2;
   box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  box-sizing: border-box;
 }
 
 .event-card:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
   z-index: 5;
+}
+
+.event-card.event-dragging {
+  opacity: 0.5;
+  transform: scale(0.98);
+}
+
+.event-card.event-resizing {
+  user-select: none;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.3);
 }
 
 .event-card.all-day {
@@ -108,6 +119,40 @@
 .event-card-time {
   font-weight: 600;
   margin-right: 4px;
+}
+
+/* Event Bottom-Edge Resize Handle */
+.event-resize-handle {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  cursor: ns-resize;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.event-resize-handle::after {
+  content: '';
+  width: 24px;
+  height: 2px;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 1px;
+}
+
+.event-resize-handle:hover::after {
+  height: 3px;
+  background-color: #ffffff;
+}
+
+/* Day Column Dragover Target */
+.day-col-dragover {
+  background-color: rgba(99, 102, 241, 0.08) !important;
+  outline: 2px dashed var(--color-accent);
+  outline-offset: -2px;
 }
 
 /* Current time indicator */
@@ -129,5 +174,164 @@
   height: 10px;
   border-radius: var(--radius-full);
   background-color: var(--color-time-indicator);
+}
+
+/* Agenda View */
+.agenda-view-container {
+  height: 100%;
+  overflow-y: auto;
+  padding: var(--space-md) var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.agenda-day-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  border-bottom: 1px solid var(--color-border-light);
+  padding-bottom: var(--space-md);
+}
+
+.agenda-day-block.today .agenda-day-title {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.agenda-day-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 4px;
+}
+
+.agenda-today-badge {
+  font-size: 11px;
+  background-color: var(--color-accent);
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+}
+
+.agenda-day-empty {
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+  font-style: italic;
+}
+
+.agenda-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.agenda-item-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 10px 14px;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--color-accent);
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.agenda-item-card:hover {
+  background-color: var(--color-bg-hover);
+  transform: translateX(2px);
+}
+
+.agenda-item-card.completed {
+  opacity: 0.6;
+}
+
+.agenda-item-time {
+  min-width: 110px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.agenda-task-checkbox {
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+  margin-right: 6px;
+}
+
+.agenda-item-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.agenda-item-title-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.agenda-item-icon {
+  font-size: 13px;
+}
+
+.agenda-item-title {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agenda-item-title.strikethrough {
+  text-decoration: line-through;
+}
+
+.agenda-item-detail {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+}
+
+.agenda-item-recurrence {
+  color: var(--color-accent);
+}
+
+.agenda-type-pill {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.agenda-type-pill.task {
+  color: #0B8043;
+  background-color: rgba(11, 128, 67, 0.1);
+}
+
+.agenda-type-pill.event {
+  color: var(--color-accent);
+  background-color: rgba(99, 102, 241, 0.1);
+}
+
+.agenda-empty-state {
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
 }
 

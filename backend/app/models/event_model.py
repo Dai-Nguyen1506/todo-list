@@ -36,7 +36,7 @@ class Event(Base):
     calendar = relationship("Calendar", back_populates="events")
     reminders = relationship("EventReminder", back_populates="event", cascade="all, delete-orphan")
     parent_event = relationship("Event", remote_side=[id], back_populates="exceptions")
-    exceptions = relationship("Event", back_populates="parent_event")
+    exceptions = relationship("Event", back_populates="parent_event", cascade="all, delete-orphan", passive_deletes=True)
 
 
 class EventReminder(Base):

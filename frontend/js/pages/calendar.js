@@ -4,7 +4,7 @@ import { api } from '../api.js';
 import { Toast } from '../components/toast.js';
 import { Modal } from '../components/modal.js';
 import { GuideCard } from '../components/guide-card.js';
-import { formatVietnameseDate, getMonthName, addDays, getStartOfWeek } from '../utils/date.js';
+import { formatVietnameseDate, getMonthName, addDays, getStartOfWeek, toLocalISOString } from '../utils/date.js';
 import { MiniCalendar } from '../calendar/mini-calendar.js';
 import { DayView } from '../calendar/day-view.js';
 import { WeekView } from '../calendar/week-view.js';
@@ -84,9 +84,10 @@ export const calendarPage = {
     };
     document.addEventListener('keydown', this.handleKeyDown);
 
-    // Cross-module sync with Tasks
-    this.handleTaskChanged = () => this.updateView();
-    document.addEventListener('task-changed', this.handleTaskChanged);
+    // Cross-module real-time reactive sync with Tasks, Events & AI Assistant
+    this.handleDataChanged = () => this.updateView();
+    window.addEventListener('planify:data-changed', this.handleDataChanged);
+    document.addEventListener('task-changed', this.handleDataChanged);
 
     // Shortcut create event
     this.handleShortcutCreate = () => {
@@ -234,7 +235,7 @@ export const calendarPage = {
       const e = addDays(s, 6);
       displayTitle = `${s.getDate()} thg ${s.getMonth() + 1} - ${e.getDate()} thg ${e.getMonth() + 1}, ${s.getFullYear()}`;
     } else if (curMode === 'agenda') {
-      displayTitle = `Lịch trình (từ ${curDate.getDate()} thg ${curDate.getMonth() + 1})`;
+      displayTitle = `Lịch biểu (từ ${curDate.getDate()} thg ${curDate.getMonth() + 1})`;
     } else {
       displayTitle = `${getMonthName(curDate.getMonth())}, ${curDate.getFullYear()}`;
     }
@@ -251,7 +252,7 @@ export const calendarPage = {
         <button class="view-toggle-btn ${curMode === 'day' ? 'active' : ''}" data-view="day">Ngày</button>
         <button class="view-toggle-btn ${curMode === 'week' ? 'active' : ''}" data-view="week">Tuần</button>
         <button class="view-toggle-btn ${curMode === 'month' ? 'active' : ''}" data-view="month">Tháng</button>
-        <button class="view-toggle-btn ${curMode === 'agenda' ? 'active' : ''}" data-view="agenda">Lịch trình</button>
+        <button class="view-toggle-btn ${curMode === 'agenda' ? 'active' : ''}" data-view="agenda">Lịch biểu</button>
       </div>
     `;
 
@@ -280,7 +281,7 @@ export const calendarPage = {
     // Fetch events & tasks in window
     try {
       const [events, tasks] = await Promise.all([
-        api.get('/events', { start: startDt.toISOString(), end: endDt.toISOString() }),
+        api.get('/events', { start: toLocalISOString(startDt), end: toLocalISOString(endDt) }),
         api.get('/tasks', { is_completed: false })
       ]);
 
@@ -331,6 +332,8 @@ export const calendarPage = {
       nextDate = addDays(curDate, direction);
     } else if (curMode === 'week') {
       nextDate = addDays(curDate, direction * 7);
+    } else if (curMode === 'agenda') {
+      nextDate = addDays(curDate, direction * 30);
     } else {
       nextDate = new Date(curDate.getFullYear(), curDate.getMonth() + direction, 1);
     }
@@ -350,9 +353,10 @@ export const calendarPage = {
       document.removeEventListener('keydown', this.handleKeyDown);
       this.handleKeyDown = null;
     }
-    if (this.handleTaskChanged) {
-      document.removeEventListener('task-changed', this.handleTaskChanged);
-      this.handleTaskChanged = null;
+    if (this.handleDataChanged) {
+      window.removeEventListener('planify:data-changed', this.handleDataChanged);
+      document.removeEventListener('task-changed', this.handleDataChanged);
+      this.handleDataChanged = null;
     }
     if (this.handleShortcutCreate) {
       document.removeEventListener('shortcut-create-event', this.handleShortcutCreate);

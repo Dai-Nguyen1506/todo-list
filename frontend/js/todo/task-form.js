@@ -167,6 +167,9 @@ export class TaskForm {
       this.recurrenceRule = null;
       this.render();
 
+      window.dispatchEvent(new CustomEvent('planify:data-changed', {
+        detail: { source: 'todo-form', action: 'create', type: 'task', id: newTask?.id }
+      }));
       document.dispatchEvent(new CustomEvent('task-changed', {
         detail: { action: 'create', task: newTask }
       }));

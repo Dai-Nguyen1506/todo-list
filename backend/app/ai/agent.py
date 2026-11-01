@@ -72,7 +72,14 @@ class PlanifyAgent:
 
         for tc in tool_calls:
             tool_name = tc["function"]["name"]
-            tool_args = json.loads(tc["function"]["arguments"] or "{}")
+            try:
+                raw_args = tc["function"].get("arguments") or "{}"
+                tool_args = json.loads(raw_args) if isinstance(raw_args, str) else raw_args
+                if not isinstance(tool_args, dict):
+                    tool_args = {}
+            except Exception as ex:
+                logger.warning(f"Malformed tool call arguments for '{tool_name}': {ex}")
+                tool_args = {}
             logger.info(f"Agent calling tool '{tool_name}' with args {tool_args}")
 
             result = await executor.execute(tool_name, tool_args)
