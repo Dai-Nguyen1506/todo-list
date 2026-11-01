@@ -40,6 +40,10 @@ class ApiClient {
       if (response.status === 401) {
         // Token expired or invalid
         this.setToken(null);
+        try {
+          const { store } = await import('./store.js');
+          store.set('user', null);
+        } catch (e) {}
         window.location.hash = '#login';
         throw new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
       }
@@ -51,8 +55,13 @@ class ApiClient {
       const data = await response.json().catch(() => null);
 
       if (!response.ok) {
-        const errorMsg = data?.detail || data?.message || `Lỗi yêu cầu: ${response.status}`;
+        const errorMsg = data?.error?.message || data?.detail || data?.message || `Lỗi yêu cầu: ${response.status}`;
         throw new Error(errorMsg);
+      }
+
+      // Auto-unwrap ApiResponse wrapper if present
+      if (data && typeof data === 'object' && data.success === true && data.data !== undefined) {
+        return data.data;
       }
 
       return data;

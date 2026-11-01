@@ -37,7 +37,11 @@ export const todoPage = {
     const mainEl = createElement('div', { className: 'todo-main flex-1 flex flex-col overflow-hidden' });
 
     // Header
-    const headerEl = createElement('div', { className: 'todo-header' });
+    const headerEl = createElement('div', {
+      className: 'todo-header',
+      id: 'todo-page-header',
+      dataset: { listTheme: String(this.activeListId) }
+    });
     const titleRow = createElement('div', { className: 'todo-title-row' }, [
       createElement('span', { id: 'todo-header-icon', style: { fontSize: '28px' }, textContent: this.activeListIcon }),
       createElement('div', {}, [
@@ -176,6 +180,11 @@ export const todoPage = {
     const titleEl = document.getElementById('todo-header-title');
     const subEl = document.getElementById('todo-header-subtitle');
     const sugBtn = document.getElementById('btn-suggestions');
+    const headerEl = document.getElementById('todo-page-header');
+
+    if (headerEl) {
+      headerEl.dataset.listTheme = String(id);
+    }
 
     if (iconEl) iconEl.textContent = icon;
     if (titleEl) titleEl.textContent = name;

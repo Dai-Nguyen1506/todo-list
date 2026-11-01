@@ -25,6 +25,7 @@ class Event(Base):
     # Exception handling for recurring instances
     parent_event_id = Column(Integer, ForeignKey("events.id", ondelete="CASCADE"), nullable=True)
     is_exception = Column(Boolean, default=False, nullable=False)
+    is_cancelled = Column(Boolean, default=False, nullable=False)
     original_start = Column(DateTime(timezone=True), nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())

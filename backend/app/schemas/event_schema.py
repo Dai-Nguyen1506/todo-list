@@ -42,6 +42,7 @@ class EventUpdate(BaseModel):
     color: Optional[str] = Field(None, max_length=7)
     recurrence_rule: Optional[str] = Field(None, max_length=500)
     recurrence_end: Optional[datetime] = None
+    is_cancelled: Optional[bool] = None
     scope: Optional[str] = Field("this", pattern="^(this|following|all)$")
     reminders: Optional[List[EventReminderCreate]] = None
 
@@ -51,6 +52,7 @@ class EventResponse(EventBase):
     calendar_id: int
     parent_event_id: Optional[int] = None
     is_exception: bool = False
+    is_cancelled: bool = False
     original_start: Optional[datetime] = None
     reminders: List[EventReminderResponse] = []
     created_at: datetime

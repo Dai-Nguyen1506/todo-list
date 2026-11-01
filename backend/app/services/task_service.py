@@ -75,6 +75,11 @@ class TaskService:
                 is_in_my_day=False,
                 due_date=next_due_date,
                 due_time=task.due_time,
+                start_time=task.start_time,
+                end_time=task.end_time,
+                duration_minutes=task.duration_minutes,
+                is_all_day=task.is_all_day,
+                color=task.color,
                 reminder_at=None,
                 recurrence_rule=task.recurrence_rule,
                 steps=[TaskStepCreate(title=s.title, position=s.position) for s in task.steps]

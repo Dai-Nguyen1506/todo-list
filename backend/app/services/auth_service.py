@@ -13,18 +13,31 @@ from app.schemas.otp_schema import OTPErrors
 from app.helper.otp import send_email
 
 class AuthService:
-    async def authenticate_user(self, db: AsyncSession, form_data: OAuth2PasswordRequestForm) -> dict:
-        """Nghiệp vụ xác thực thông tin đăng nhập và cấp Token"""
-        user = await user_crud.get_by_email(db, email=form_data.username)
+    async def authenticate_by_credentials(self, db: AsyncSession, email: str, password: str) -> dict:
+        """Nghiệp vụ xác thực thông tin đăng nhập và cấp Token bằng email & password"""
+        if not email or not password:
+            raise AuthErrors.INVALID_LOGIN.throw()
 
-        if not user or not user.is_activate or not await verify_password(form_data.password, user.password_hashed):
+        user = await user_crud.get_by_email(db, email=email)
+
+        if not user or not user.is_activate or not await verify_password(password, user.password_hashed):
             raise AuthErrors.INVALID_LOGIN.throw()
 
         access_token = create_access_token(subject=user.id, is_developer=user.is_developer)
         return {
             "access_token": access_token, 
-            "token_type": "bearer"
+            "token_type": "bearer",
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "nickname": user.nickname,
+                "theme_preference": user.theme_preference
+            }
         }
+
+    async def authenticate_user(self, db: AsyncSession, form_data: OAuth2PasswordRequestForm) -> dict:
+        """Nghiệp vụ xác thực thông tin đăng nhập từ OAuth2 Form"""
+        return await self.authenticate_by_credentials(db, email=form_data.username, password=form_data.password)
 
     async def send_otp_email(self, email: str, reason: str, db: AsyncSession, redis: Redis):
         """Nghiệp vụ gửi mã OTP"""

@@ -11,6 +11,7 @@ export class TaskForm {
     this.onCreated = onCreated;
 
     this.dueDate = null;
+    this.timeBlock = null;
     this.isImportant = false;
     this.recurrenceRule = null;
     this.reminderAt = null;
@@ -98,7 +99,27 @@ export class TaskForm {
       }
     });
 
-    // 3. Star / Important toggle
+    // 3. Time block quick button
+    const timeBtn = createElement('button', {
+      className: `btn btn-secondary btn-sm ${this.timeBlock ? 'active' : ''}`,
+      title: 'Đặt giờ làm việc lên Lịch',
+      textContent: this.timeBlock ? `⏰ ${this.timeBlock} (1h)` : '⏰ Khung giờ',
+      onclick: () => {
+        if (!this.timeBlock) {
+          this.timeBlock = '09:00';
+          if (!this.dueDate) this.dueDate = formatDate(new Date(), 'YYYY-MM-DD');
+        } else if (this.timeBlock === '09:00') {
+          this.timeBlock = '14:00';
+        } else if (this.timeBlock === '14:00') {
+          this.timeBlock = '20:00';
+        } else {
+          this.timeBlock = null;
+        }
+        this.render();
+      }
+    });
+
+    // 4. Star / Important toggle
     const starBtn = createElement('button', {
       className: `btn btn-secondary btn-sm ${this.isImportant ? 'active' : ''}`,
       title: 'Đánh dấu quan trọng',
@@ -110,6 +131,7 @@ export class TaskForm {
     });
 
     toolbar.appendChild(dueBtn);
+    toolbar.appendChild(timeBtn);
     toolbar.appendChild(recurBtn);
     toolbar.appendChild(starBtn);
 
@@ -128,7 +150,10 @@ export class TaskForm {
       const payload = {
         title,
         list_id: this.listId || undefined,
-        due_date: this.dueDate || undefined,
+        due_date: this.dueDate || (this.timeBlock ? formatDate(new Date(), 'YYYY-MM-DD') : undefined),
+        is_all_day: !this.timeBlock,
+        start_time: this.timeBlock || undefined,
+        duration_minutes: this.timeBlock ? 60 : undefined,
         is_important: this.isImportant,
         is_in_my_day: this.isMyDay,
         recurrence_rule: this.recurrenceRule || undefined
@@ -137,6 +162,7 @@ export class TaskForm {
       const newTask = await api.post('/tasks', payload);
       inputEl.value = '';
       this.dueDate = null;
+      this.timeBlock = null;
       this.isImportant = false;
       this.recurrenceRule = null;
       this.render();

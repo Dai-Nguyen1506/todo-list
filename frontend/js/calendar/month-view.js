@@ -111,25 +111,19 @@ export class MonthView {
           style: { flex: 1, display: 'flex', flexDirection: 'column', gap: '2px', overflow: 'hidden' }
         });
 
-        // Tasks due
-        const dueTasks = this.tasks.filter(t => t.due_date && isSameDay(t.due_date, cell.date));
-        dueTasks.forEach(t => {
-          cellItems.appendChild(EventCard.create({
-            event: { id: t.id, title: `☑ ${t.title}`, is_all_day: true, is_task: true, color: '#0B8043' },
-            onUpdate: this.onRefresh
-          }));
-        });
-
-        // Events
+        // Tasks and Events on this date
+        const dayTasks = this.tasks.filter(t => isSameDay(t.start_at, cell.date));
         const dayEvents = this.events.filter(e => isSameDay(e.start_at, cell.date));
-        dayEvents.slice(0, 3).forEach(e => {
-          cellItems.appendChild(EventCard.create({ event: e, onUpdate: this.onRefresh }));
+        const allItems = [...dayTasks, ...dayEvents];
+
+        allItems.slice(0, 3).forEach(item => {
+          cellItems.appendChild(EventCard.create({ event: item, onUpdate: this.onRefresh }));
         });
 
-        if (dayEvents.length > 3) {
+        if (allItems.length > 3) {
           const moreBadge = createElement('div', {
             style: { fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: '600', paddingLeft: '4px' },
-            textContent: `+${dayEvents.length - 3} sự kiện nữa`
+            textContent: `+${allItems.length - 3} mục nữa`
           });
           cellItems.appendChild(moreBadge);
         }

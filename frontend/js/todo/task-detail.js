@@ -269,6 +269,156 @@ export class TaskDetail {
 
     actionsGroup.appendChild(myDayBtn);
     actionsGroup.appendChild(dueRow);
+
+    // Time-blocking section (Calendar synchronization)
+    const isAllDay = t.is_all_day !== false;
+    const startTimeVal = t.start_time ? String(t.start_time).substring(0, 5) : '';
+    const endTimeVal = t.end_time ? String(t.end_time).substring(0, 5) : '';
+
+    const timeBlockSection = createElement('div', {
+      className: 'form-group',
+      style: {
+        padding: '10px 12px',
+        backgroundColor: 'var(--color-bg-secondary)',
+        borderRadius: 'var(--radius-md)',
+        border: '1px solid var(--color-border-light)'
+      }
+    });
+
+    const timeBlockHeader = createElement('div', {
+      className: 'flex items-center justify-between',
+      style: { marginBottom: isAllDay ? '0' : '8px' }
+    }, [
+      createElement('label', {
+        className: 'form-label',
+        style: { marginBottom: 0, fontWeight: '600' },
+        textContent: '⏰ Khung giờ (Time-Blocking)'
+      }),
+      createElement('label', {
+        className: 'flex items-center gap-xs cursor-pointer',
+        style: { fontSize: '12px' }
+      }, [
+        createElement('input', {
+          type: 'checkbox',
+          checked: isAllDay,
+          onchange: async (e) => {
+            const nextAllDay = e.target.checked;
+            const updates = { is_all_day: nextAllDay };
+            if (!nextAllDay && !t.start_time) {
+              updates.start_time = '09:00';
+              updates.duration_minutes = 60;
+              if (!t.due_date) updates.due_date = formatDate(new Date(), 'YYYY-MM-DD');
+            }
+            await api.put(`/tasks/${t.id}`, updates);
+            Object.assign(t, updates);
+            this.render();
+            document.dispatchEvent(new CustomEvent('task-changed', { detail: { action: 'update', task: t } }));
+            if (this.onUpdate) this.onUpdate();
+          }
+        }),
+        createElement('span', { textContent: 'Cả ngày' })
+      ])
+    ]);
+    timeBlockSection.appendChild(timeBlockHeader);
+
+    if (!isAllDay) {
+      const timeInputsRow = createElement('div', {
+        className: 'flex items-center gap-sm',
+        style: { marginTop: '8px' }
+      }, [
+        createElement('div', { className: 'flex-1' }, [
+          createElement('label', { style: { fontSize: '11px', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '2px' }, textContent: 'Bắt đầu' }),
+          createElement('input', {
+            type: 'time',
+            className: 'input',
+            value: startTimeVal || '09:00',
+            onchange: async (e) => {
+              const val = e.target.value;
+              await api.put(`/tasks/${t.id}`, { start_time: val });
+              t.start_time = val;
+              document.dispatchEvent(new CustomEvent('task-changed', { detail: { action: 'update', task: t } }));
+              if (this.onUpdate) this.onUpdate();
+            }
+          })
+        ]),
+        createElement('div', { className: 'flex-1' }, [
+          createElement('label', { style: { fontSize: '11px', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '2px' }, textContent: 'Kết thúc' }),
+          createElement('input', {
+            type: 'time',
+            className: 'input',
+            value: endTimeVal || '',
+            onchange: async (e) => {
+              const val = e.target.value || null;
+              await api.put(`/tasks/${t.id}`, { end_time: val });
+              t.end_time = val;
+              document.dispatchEvent(new CustomEvent('task-changed', { detail: { action: 'update', task: t } }));
+              if (this.onUpdate) this.onUpdate();
+            }
+          })
+        ])
+      ]);
+
+      const durationRow = createElement('div', {
+        className: 'flex items-center justify-between',
+        style: { marginTop: '8px', fontSize: '12px' }
+      }, [
+        createElement('span', { style: { color: 'var(--color-text-secondary)' }, textContent: 'Thời lượng:' }),
+        createElement('select', {
+          className: 'select',
+          style: { width: '130px', padding: '4px 8px' },
+          onchange: async (e) => {
+            const mins = parseInt(e.target.value, 10);
+            await api.put(`/tasks/${t.id}`, { duration_minutes: mins });
+            t.duration_minutes = mins;
+            document.dispatchEvent(new CustomEvent('task-changed', { detail: { action: 'update', task: t } }));
+            if (this.onUpdate) this.onUpdate();
+          }
+        }, [
+          createElement('option', { value: '15', textContent: '15 phút', selected: t.duration_minutes === 15 }),
+          createElement('option', { value: '30', textContent: '30 phút', selected: t.duration_minutes === 30 }),
+          createElement('option', { value: '45', textContent: '45 phút', selected: t.duration_minutes === 45 }),
+          createElement('option', { value: '60', textContent: '60 phút (1h)', selected: !t.duration_minutes || t.duration_minutes === 60 }),
+          createElement('option', { value: '90', textContent: '90 phút (1.5h)', selected: t.duration_minutes === 90 }),
+          createElement('option', { value: '120', textContent: '120 phút (2h)', selected: t.duration_minutes === 120 })
+        ])
+      ]);
+
+      const colorRow = createElement('div', {
+        className: 'flex items-center justify-between',
+        style: { marginTop: '8px', fontSize: '12px' }
+      }, [
+        createElement('span', { style: { color: 'var(--color-text-secondary)' }, textContent: 'Màu thẻ:' }),
+        createElement('div', { className: 'flex items-center gap-xs' }, [
+          '#0B8043', '#4F46E5', '#0284C7', '#D97706', '#DC2626', '#9333EA'
+        ].map(c => {
+          const isSelected = (t.color || '#0B8043').toLowerCase() === c.toLowerCase();
+          return createElement('button', {
+            style: {
+              width: '20px',
+              height: '20px',
+              borderRadius: '50%',
+              backgroundColor: c,
+              border: isSelected ? '2px solid var(--color-text-primary)' : '2px solid transparent',
+              cursor: 'pointer'
+            },
+            title: c,
+            onclick: async () => {
+              await api.put(`/tasks/${t.id}`, { color: c });
+              t.color = c;
+              this.render();
+              document.dispatchEvent(new CustomEvent('task-changed', { detail: { action: 'update', task: t } }));
+              if (this.onUpdate) this.onUpdate();
+            }
+          });
+        }))
+      ]);
+
+      timeBlockSection.appendChild(timeInputsRow);
+      timeBlockSection.appendChild(durationRow);
+      timeBlockSection.appendChild(colorRow);
+    }
+
+    actionsGroup.appendChild(timeBlockSection);
     actionsGroup.appendChild(recurRow);
     actionsGroup.appendChild(listRow);
 

@@ -71,6 +71,11 @@ class CRUDTask(CRUDBase[Task]):
             my_day_date=today if obj_in.is_in_my_day else None,
             due_date=obj_in.due_date,
             due_time=obj_in.due_time,
+            start_time=obj_in.start_time,
+            end_time=obj_in.end_time,
+            duration_minutes=obj_in.duration_minutes if obj_in.duration_minutes is not None else 60,
+            is_all_day=obj_in.is_all_day if obj_in.is_all_day is not None else True,
+            color=obj_in.color,
             reminder_at=obj_in.reminder_at,
             recurrence_rule=obj_in.recurrence_rule,
             position=0

@@ -30,6 +30,7 @@ class CRUDEvent(CRUDBase[Event]):
             .options(selectinload(Event.reminders))
             .where(
                 Event.user_id == user_id,
+                Event.is_cancelled == False,
                 # Normal events overlapping the window OR recurring events that start before window end
                 (
                     ((Event.start_at <= end_at) & (Event.end_at >= start_at)) |

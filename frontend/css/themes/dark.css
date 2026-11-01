@@ -1,59 +1,59 @@
 [data-theme="dark"] {
   /* ===== BACKGROUNDS ===== */
-  --color-bg-primary: #1e1e1e;
-  --color-bg-secondary: #252526;
-  --color-bg-tertiary: #2d2d30;
-  --color-bg-hover: #333333;
-  --color-bg-active: #3c3c3c;
-  --color-bg-selected: #264f78;
-  --color-bg-sidebar: #181818;
-  --color-bg-card: #252526;
-  --color-bg-input: #2d2d30;
-  --color-bg-modal: #252526;
+  --color-bg-primary: #0f172a;
+  --color-bg-secondary: #1e293b;
+  --color-bg-tertiary: #334155;
+  --color-bg-hover: #334155;
+  --color-bg-active: #475569;
+  --color-bg-selected: #312e81;
+  --color-bg-sidebar: #0f172a;
+  --color-bg-card: #1e293b;
+  --color-bg-input: #1e293b;
+  --color-bg-modal: #1e293b;
 
   /* ===== TEXT COLORS ===== */
-  --color-text-primary: #e8eaed;
-  --color-text-secondary: #9aa0a6;
-  --color-text-tertiary: #80868b;
-  --color-text-muted: #5f6368;
-  --color-text-inverse: #1e1e1e;
-  --color-text-link: #8ab4f8;
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-text-tertiary: #94a3b8;
+  --color-text-muted: #64748b;
+  --color-text-inverse: #0f172a;
+  --color-text-link: #818cf8;
 
   /* ===== BORDER COLORS ===== */
-  --color-border: #3c4043;
-  --color-border-light: #2d2d30;
-  --color-border-focus: #8ab4f8;
+  --color-border: #334155;
+  --color-border-light: #1e293b;
+  --color-border-focus: #818cf8;
 
-  /* ===== ACCENT COLORS (Dark Mode Blue) ===== */
-  --color-accent: #8ab4f8;
-  --color-accent-hover: #aecbfa;
-  --color-accent-active: #c58af9;
-  --color-accent-light: #1f304c;
-  --color-accent-contrast: #1e1e1e;
+  /* ===== ACCENT COLORS (Planify Indigo in Dark Mode) ===== */
+  --color-accent: #818cf8;
+  --color-accent-hover: #a5b4fc;
+  --color-accent-active: #c7d2fe;
+  --color-accent-light: #1e1b4b;
+  --color-accent-contrast: #0f172a;
 
   /* ===== SEMANTIC STATUS ===== */
-  --color-success: #81c995;
-  --color-success-bg: #133924;
-  --color-warning: #fdd663;
-  --color-warning-bg: #3f310f;
-  --color-danger: #f28b82;
-  --color-danger-bg: #441b18;
-  --color-info: #8ab4f8;
-  --color-info-bg: #1f304c;
+  --color-success: #4ade80;
+  --color-success-bg: #052e16;
+  --color-warning: #fbbf24;
+  --color-warning-bg: #451a03;
+  --color-danger: #f87171;
+  --color-danger-bg: #450a0a;
+  --color-info: #38bdf8;
+  --color-info-bg: #082f49;
 
   /* ===== SPECIAL HIGHLIGHTS ===== */
-  --color-star: #fdd663;
-  --color-today: #8ab4f8;
-  --color-overdue: #f28b82;
+  --color-star: #fbbf24;
+  --color-today: #818cf8;
+  --color-today-bg: #1e1b4b;
+  --color-overdue: #f87171;
 
   /* ===== CALENDAR GRID ===== */
-  --color-grid-line: #3c4043;
-  --color-grid-line-half: #2d2d30;
-  --color-time-indicator: #f28b82;
-  --color-event-default: #8ab4f8;
+  --color-grid-line: #334155;
+  --color-grid-line-half: #1e293b;
+  --color-time-indicator: #f87171;
+  --color-event-default: #818cf8;
 
   /* ===== SCROLLBAR ===== */
-  --color-scrollbar: #5f6368;
-  --color-scrollbar-hover: #80868b;
+  --color-scrollbar: #475569;
+  --color-scrollbar-hover: #64748b;
 }
-

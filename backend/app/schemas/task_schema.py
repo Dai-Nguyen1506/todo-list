@@ -61,6 +61,11 @@ class TaskBase(BaseModel):
     is_in_my_day: bool = False
     due_date: Optional[date] = None
     due_time: Optional[time] = None
+    start_time: Optional[time] = None
+    end_time: Optional[time] = None
+    duration_minutes: Optional[int] = 60
+    is_all_day: Optional[bool] = True
+    color: Optional[str] = None
     reminder_at: Optional[datetime] = None
     recurrence_rule: Optional[str] = Field(None, max_length=500)
 
@@ -76,6 +81,11 @@ class TaskUpdate(BaseModel):
     is_in_my_day: Optional[bool] = None
     due_date: Optional[date] = None
     due_time: Optional[time] = None
+    start_time: Optional[time] = None
+    end_time: Optional[time] = None
+    duration_minutes: Optional[int] = None
+    is_all_day: Optional[bool] = None
+    color: Optional[str] = None
     reminder_at: Optional[datetime] = None
     recurrence_rule: Optional[str] = Field(None, max_length=500)
     position: Optional[int] = None

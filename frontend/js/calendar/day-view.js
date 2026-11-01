@@ -43,20 +43,10 @@ export class DayView {
       style: { flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }
     });
 
-    // Render tasks with due date today in all day zone
-    const dueTasksToday = this.tasks.filter(t => t.due_date && isSameDay(t.due_date, this.date));
-    dueTasksToday.forEach(t => {
-      const taskCard = EventCard.create({
-        event: {
-          id: t.id,
-          title: `[Việc] ${t.title}`,
-          is_all_day: true,
-          is_task: true,
-          color: '#0B8043'
-        },
-        onUpdate: this.onRefresh
-      });
-      allDayContent.appendChild(taskCard);
+    // Render all-day tasks
+    const allDayTasks = this.tasks.filter(t => t.is_all_day && isSameDay(t.start_at, this.date));
+    allDayTasks.forEach(t => {
+      allDayContent.appendChild(EventCard.create({ event: t, onUpdate: this.onRefresh }));
     });
 
     // Render all-day events
@@ -132,18 +122,21 @@ export class DayView {
     this.timeIndicator = new TimeIndicator(eventGrid, this.hourHeight);
     this.timeIndicator.mount();
 
-    // Render timed events
+    // Render timed events and timed tasks
     const timedEvents = this.events.filter(e => !e.is_all_day && isSameDay(e.start_at, this.date));
-    timedEvents.forEach(e => {
-      const s = new Date(e.start_at);
-      const end = new Date(e.end_at);
+    const timedTasks = this.tasks.filter(t => !t.is_all_day && isSameDay(t.start_at, this.date));
+    const allTimed = [...timedEvents, ...timedTasks].sort((a, b) => new Date(a.start_at) - new Date(b.start_at));
+
+    allTimed.forEach(item => {
+      const s = new Date(item.start_at);
+      const end = new Date(item.end_at);
       const topMinutes = s.getHours() * 60 + s.getMinutes();
       const durationMins = Math.max(30, (end.getTime() - s.getTime()) / 60000);
 
       const topPx = (topMinutes / 60) * this.hourHeight;
       const heightPx = (durationMins / 60) * this.hourHeight - 2;
 
-      const card = EventCard.create({ event: e, onUpdate: this.onRefresh });
+      const card = EventCard.create({ event: item, onUpdate: this.onRefresh });
       card.style.top = `${topPx}px`;
       card.style.height = `${heightPx}px`;
       card.style.left = '4px';

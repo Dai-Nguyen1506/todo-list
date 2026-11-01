@@ -3,17 +3,21 @@ import { store } from '../store.js';
 import { api } from '../api.js';
 import { Toast } from '../components/toast.js';
 import { Modal } from '../components/modal.js';
+import { GuideCard } from '../components/guide-card.js';
 import { formatVietnameseDate, getMonthName, addDays, getStartOfWeek } from '../utils/date.js';
 import { MiniCalendar } from '../calendar/mini-calendar.js';
 import { DayView } from '../calendar/day-view.js';
 import { WeekView } from '../calendar/week-view.js';
 import { MonthView } from '../calendar/month-view.js';
 import { EventForm } from '../calendar/event-form.js';
+import { RRuleParser } from '../calendar/rrule.js';
+import { adaptTasksForCalendar } from '../calendar/task-adapter.js';
 
 export const calendarPage = {
   container: null,
   activeView: null,
   miniCalendar: null,
+  guideCard: null,
   handleKeyDown: null,
 
   async render(container) {
@@ -33,9 +37,15 @@ export const calendarPage = {
     // 2. Main
     const main = createElement('div', { className: 'calendar-main' });
     const toolbar = createElement('div', { className: 'calendar-toolbar' });
+    
+    // Guide Card above calendar grid
+    this.guideCard = new GuideCard();
+    const guideElement = this.guideCard.render();
+
     const viewContainer = createElement('div', { className: 'calendar-view-container', id: 'calendar-view-body' });
 
     main.appendChild(toolbar);
+    main.appendChild(guideElement);
     main.appendChild(viewContainer);
 
     page.appendChild(sidebar);
@@ -222,6 +232,7 @@ export const calendarPage = {
         <h2 class="calendar-title">${displayTitle}</h2>
       </div>
       <div class="view-toggle-group">
+        <button class="btn btn-secondary btn-sm" id="btn-toggle-guide" title="Hiện / Ẩn hướng dẫn thao tác">💡 Hướng dẫn</button>
         <button class="view-toggle-btn ${curMode === 'day' ? 'active' : ''}" data-view="day">Ngày</button>
         <button class="view-toggle-btn ${curMode === 'week' ? 'active' : ''}" data-view="week">Tuần</button>
         <button class="view-toggle-btn ${curMode === 'month' ? 'active' : ''}" data-view="month">Tháng</button>
@@ -229,6 +240,12 @@ export const calendarPage = {
     `;
 
     // Bind toolbar buttons
+    document.getElementById('btn-toggle-guide')?.addEventListener('click', () => {
+      if (this.guideCard) {
+        this.guideCard.toggle();
+      }
+    });
+
     document.getElementById('btn-cal-today')?.addEventListener('click', () => {
       store.set('selectedDate', new Date());
       this.updateView();
@@ -255,11 +272,14 @@ export const calendarPage = {
         this.activeView.destroy();
       }
 
+      const expandedEvents = RRuleParser.expandAll(events || [], startDt, endDt);
+      const adaptedTasks = adaptTasksForCalendar(tasks || []);
+
       const defaultCal = (store.get('calendars') || []).find(c => c.is_default);
       const viewOptions = {
         date: curDate,
-        events: events || [],
-        tasks: tasks || [],
+        events: expandedEvents,
+        tasks: adaptedTasks,
         defaultCalendarId: defaultCal?.id,
         onRefresh: () => this.updateView()
       };

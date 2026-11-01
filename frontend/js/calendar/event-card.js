@@ -27,6 +27,9 @@ export class EventCard {
     });
 
     if (isTask) {
+      if (!event.is_all_day) {
+        card.appendChild(createElement('span', { className: 'event-card-time', textContent: timeStr }));
+      }
       const checkBtn = createElement('span', {
         className: 'event-task-check-icon mr-xs cursor-pointer',
         style: { fontWeight: 'bold' },

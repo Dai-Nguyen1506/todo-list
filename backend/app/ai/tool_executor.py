@@ -93,12 +93,36 @@ class ToolExecutor:
         ]
 
     async def _create_task(self, title: str, steps: list = None, **kwargs):
+        start_time_val = None
+        if kwargs.get("start_time"):
+            try:
+                start_time_val = time.fromisoformat(kwargs["start_time"])
+            except Exception:
+                pass
+
+        end_time_val = None
+        if kwargs.get("end_time"):
+            try:
+                end_time_val = time.fromisoformat(kwargs["end_time"])
+            except Exception:
+                pass
+
+        is_all_day_val = kwargs.get("is_all_day")
+        if is_all_day_val is None:
+            is_all_day_val = False if start_time_val else True
+
         task_in = TaskCreate(
             title=title,
             note=kwargs.get("note"),
             list_id=kwargs.get("list_id"),
             due_date=date.fromisoformat(kwargs["due_date"]) if kwargs.get("due_date") else None,
             due_time=time.fromisoformat(kwargs["due_time"]) if kwargs.get("due_time") else None,
+            start_time=start_time_val,
+            end_time=end_time_val,
+            duration_minutes=kwargs.get("duration_minutes", 60),
+            is_all_day=is_all_day_val,
+            color=kwargs.get("color"),
+            recurrence_rule=kwargs.get("recurrence_rule"),
             is_important=kwargs.get("is_important", False),
             is_in_my_day=kwargs.get("is_in_my_day", False),
             steps=[TaskStepCreate(title=s) for s in steps] if steps else None
@@ -109,7 +133,9 @@ class ToolExecutor:
             "title": created.title,
             "is_important": created.is_important,
             "is_in_my_day": created.is_in_my_day,
-            "due_date": str(created.due_date) if created.due_date else None
+            "due_date": str(created.due_date) if created.due_date else None,
+            "start_time": str(created.start_time) if created.start_time else None,
+            "recurrence_rule": created.recurrence_rule
         }
 
     async def _update_task(self, task_id: int, **kwargs):
@@ -117,6 +143,10 @@ class ToolExecutor:
             kwargs["due_date"] = date.fromisoformat(kwargs["due_date"])
         if "due_time" in kwargs and kwargs["due_time"]:
             kwargs["due_time"] = time.fromisoformat(kwargs["due_time"])
+        if "start_time" in kwargs and kwargs["start_time"]:
+            kwargs["start_time"] = time.fromisoformat(kwargs["start_time"])
+        if "end_time" in kwargs and kwargs["end_time"]:
+            kwargs["end_time"] = time.fromisoformat(kwargs["end_time"])
 
         task_in = TaskUpdate(**kwargs)
         updated = await task_service.update_task(self.db, task_id=task_id, user_id=self.user_id, task_in=task_in)

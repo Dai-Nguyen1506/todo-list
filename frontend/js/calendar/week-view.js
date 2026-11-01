@@ -110,11 +110,11 @@ export class WeekView {
         }
       });
 
-      // Tasks due on this day
-      const dueTasks = this.tasks.filter(t => t.due_date && isSameDay(t.due_date, d));
-      dueTasks.forEach(t => {
+      // Tasks (all-day) on this day
+      const allDayTasks = this.tasks.filter(t => t.is_all_day && isSameDay(t.start_at, d));
+      allDayTasks.forEach(t => {
         col.appendChild(EventCard.create({
-          event: { id: t.id, title: `☑ ${t.title}`, is_all_day: true, is_task: true, color: '#0B8043' },
+          event: t,
           onUpdate: this.onRefresh
         }));
       });
@@ -204,18 +204,21 @@ export class WeekView {
         this.timeIndicator.mount();
       }
 
-      // Render events on this day
+      // Render timed events and timed tasks on this day
       const dayEvents = this.events.filter(e => !e.is_all_day && isSameDay(e.start_at, d));
-      dayEvents.forEach(e => {
-        const s = new Date(e.start_at);
-        const end = new Date(e.end_at);
+      const dayTasks = this.tasks.filter(t => !t.is_all_day && isSameDay(t.start_at, d));
+      const allTimedItems = [...dayEvents, ...dayTasks].sort((a, b) => new Date(a.start_at) - new Date(b.start_at));
+
+      allTimedItems.forEach(item => {
+        const s = new Date(item.start_at);
+        const end = new Date(item.end_at);
         const topMinutes = s.getHours() * 60 + s.getMinutes();
         const durationMins = Math.max(30, (end.getTime() - s.getTime()) / 60000);
 
         const topPx = (topMinutes / 60) * this.hourHeight;
         const heightPx = (durationMins / 60) * this.hourHeight - 2;
 
-        const card = EventCard.create({ event: e, onUpdate: this.onRefresh });
+        const card = EventCard.create({ event: item, onUpdate: this.onRefresh });
         card.style.top = `${topPx}px`;
         card.style.height = `${heightPx}px`;
         card.style.left = '2px';

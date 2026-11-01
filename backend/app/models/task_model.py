@@ -39,6 +39,11 @@ class Task(Base):
 
     due_date = Column(Date, nullable=True, index=True)
     due_time = Column(Time, nullable=True)
+    start_time = Column(Time, nullable=True)
+    end_time = Column(Time, nullable=True)
+    duration_minutes = Column(Integer, default=60, nullable=False)
+    is_all_day = Column(Boolean, default=True, nullable=False)
+    color = Column(String(7), nullable=True)
     reminder_at = Column(DateTime(timezone=True), nullable=True)
 
     recurrence_rule = Column(String(500), nullable=True)

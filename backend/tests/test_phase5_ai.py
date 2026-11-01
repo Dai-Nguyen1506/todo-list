@@ -76,18 +76,14 @@ async def test_ai_phase5():
         assert qc_reply["role"] == "assistant"
 
         print("[*] 5. Testing Rate Limiting (>30 msgs/min)...")
-        hit_429 = False
-        for i in range(35):
-            res = await client.post(
-                "/ai/chat",
-                json={"content": f"Ping test {i}"},
-                headers=headers
-            )
-            if res.status_code == 429:
-                hit_429 = True
-                print(f"   [OK] Successfully triggered HTTP 429 Rate Limit at request {i+1}!")
-                break
+        tasks = [
+            client.post("/ai/chat", json={"content": f"Ping test {i}"}, headers=headers)
+            for i in range(35)
+        ]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        hit_429 = any(getattr(r, "status_code", None) == 429 for r in results)
         assert hit_429, "Rate limit of 30 msgs/min should have triggered HTTP 429"
+        print("   [OK] Successfully triggered HTTP 429 Rate Limit!")
 
         print("🎉 ALL PHASE 5 AI AGENT AUTOMATED TESTS PASSED 100%!")
 

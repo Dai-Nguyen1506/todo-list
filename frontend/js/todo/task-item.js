@@ -108,9 +108,18 @@ export class TaskItem {
     if (task.due_date) {
       const isTod = isToday(task.due_date);
       const isOverdue = new Date(task.due_date) < new Date() && !isTod && !isCompleted;
+      let dateLabel = `📅 ${isTod ? 'Hôm nay' : task.due_date}`;
+      if (task.start_time && !task.is_all_day) {
+        dateLabel += ` ⏰ ${String(task.start_time).substring(0, 5)}`;
+      }
       metaRow.appendChild(createElement('span', {
         style: { color: isOverdue ? 'var(--color-danger)' : (isTod ? 'var(--color-accent)' : 'inherit') },
-        textContent: `📅 ${isTod ? 'Hôm nay' : task.due_date}`
+        textContent: dateLabel
+      }));
+    } else if (task.start_time && !task.is_all_day) {
+      metaRow.appendChild(createElement('span', {
+        style: { color: 'var(--color-accent)' },
+        textContent: `⏰ ${String(task.start_time).substring(0, 5)}`
       }));
     }
 

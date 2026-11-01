@@ -48,8 +48,16 @@ export class AuthManager {
       const response = await api.get('/users/me');
       const user = response?.data || response;
       store.set('user', user);
-      if (user?.theme_preference) {
+      
+      const localTheme = localStorage.getItem('planify_theme');
+      if (localTheme) {
+        store.set('theme', localTheme);
+        if (user?.theme_preference !== localTheme) {
+          api.put('/users/me', { theme_preference: localTheme }).catch(() => {});
+        }
+      } else if (user?.theme_preference) {
         store.set('theme', user.theme_preference);
+        localStorage.setItem('planify_theme', user.theme_preference);
       }
       return user;
     } catch (err) {

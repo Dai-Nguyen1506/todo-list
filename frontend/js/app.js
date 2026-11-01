@@ -6,9 +6,11 @@ import { ThemeManager } from './theme.js';
 import { Toast } from './components/toast.js';
 import { AuthManager } from './auth.js';
 import { Sidebar } from './components/sidebar.js';
+import { ReminderNotifier } from './components/reminder-notifier.js';
 import { router } from './router.js';
 import { store } from './store.js';
 
+import { landingPage } from './pages/landing.js';
 import { loginPage } from './pages/login.js';
 import { registerPage } from './pages/register.js';
 import { calendarPage } from './pages/calendar.js';
@@ -27,6 +29,7 @@ class App {
     Toast.init();
 
     // 3. Register Routes
+    router.register('landing', landingPage);
     router.register('login', loginPage);
     router.register('register', registerPage);
     router.register('calendar', calendarPage);
@@ -36,16 +39,18 @@ class App {
     // 4. Initialize UI Sidebar
     Sidebar.init();
 
-    // 5. Update user badge in header
+    // 5. Update user badge in header & Reminder service
     store.on('user', (user) => {
       const nameEl = document.getElementById('user-display-name');
       const avatarEl = document.getElementById('user-avatar-initial');
       if (user) {
         if (nameEl) nameEl.textContent = user.nickname || user.email;
         if (avatarEl) avatarEl.textContent = (user.nickname || user.email || 'U')[0].toUpperCase();
+        ReminderNotifier.start();
       } else {
         if (nameEl) nameEl.textContent = 'Người dùng';
         if (avatarEl) avatarEl.textContent = 'U';
+        ReminderNotifier.stop();
       }
     });
 
