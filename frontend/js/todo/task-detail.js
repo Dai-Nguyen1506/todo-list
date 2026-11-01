@@ -316,3 +316,4 @@ export class TaskDetail {
     this.container.appendChild(panel);
   }
 }
+

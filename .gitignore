@@ -26,7 +26,6 @@ app.log
 node_modules/
 dist/
 build/
-frontend.bak/
 .npm
 npm-debug.log*
 yarn-debug.log*

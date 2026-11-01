@@ -131,3 +131,4 @@ export class MiniCalendar {
     this.render();
   }
 }
+

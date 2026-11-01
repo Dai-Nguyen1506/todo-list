@@ -86,3 +86,4 @@ export class ChatMessage {
     return msgEl;
   }
 }
+

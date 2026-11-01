@@ -33,3 +33,4 @@ async def check_ai_rate_limit(current_user: User = Depends(get_current_user)) ->
         raise
     except Exception as e:
         logger.error(f"Lỗi khi kiểm tra rate limit: {str(e)}")
+

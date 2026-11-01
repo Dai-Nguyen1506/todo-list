@@ -177,3 +177,4 @@ export class MyDaySuggestions {
     this.modalEl = overlay;
   }
 }
+

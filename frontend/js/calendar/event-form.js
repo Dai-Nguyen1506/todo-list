@@ -281,3 +281,4 @@ export class EventForm {
     modalRef.open();
   }
 }
+
