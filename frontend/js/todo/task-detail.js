@@ -3,6 +3,7 @@ import { api } from '../api.js';
 import { Toast } from '../components/toast.js';
 import { store } from '../store.js';
 import { formatDate } from '../utils/date.js';
+import { soundManager } from '../utils/sound.js';
 
 export class TaskDetail {
   constructor(container, { onUpdate = null, onClose = null } = {}) {
@@ -67,6 +68,9 @@ export class TaskDetail {
       className: 'task-checkbox',
       onclick: async () => {
         const nextState = !t.is_completed;
+        if (nextState) {
+          soundManager.playTaskComplete();
+        }
         await api.patch(`/tasks/${t.id}/complete`, { is_completed: nextState });
         t.is_completed = nextState;
         this.render();

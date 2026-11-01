@@ -9,6 +9,7 @@ import { Sidebar } from './components/sidebar.js';
 import { ReminderNotifier } from './components/reminder-notifier.js';
 import { router } from './router.js';
 import { store } from './store.js';
+import { keyboardManager } from './utils/keyboard.js';
 
 import { landingPage } from './pages/landing.js';
 import { loginPage } from './pages/login.js';

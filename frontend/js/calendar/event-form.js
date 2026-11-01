@@ -126,11 +126,19 @@ export class EventForm {
       value: formatDate(initialEnd, 'HH:mm')
     });
 
-    // All day checkbox
+    // All day checkbox with reactive time input visibility
     const allDayCheckbox = createElement('input', {
       type: 'checkbox',
       checked: event ? event.is_all_day : false
     });
+
+    const updateTimeInputsVisibility = () => {
+      const isAllDay = allDayCheckbox.checked;
+      startTimeInput.style.display = isAllDay ? 'none' : 'block';
+      endTimeInput.style.display = isAllDay ? 'none' : 'block';
+    };
+    allDayCheckbox.addEventListener('change', updateTimeInputsVisibility);
+    setTimeout(updateTimeInputsVisibility, 0);
 
     // Calendar select
     const calSelect = createElement('select', { className: 'select' });
@@ -213,7 +221,11 @@ export class EventForm {
         className: 'btn btn-danger',
         textContent: 'Xóa sự kiện',
         onclick: async () => {
-          if (confirm('Bạn có chắc chắn muốn xóa sự kiện này?')) {
+          let deleteMsg = 'Bạn có chắc chắn muốn xóa sự kiện này?';
+          if (event.recurrence_rule) {
+            deleteMsg = '⚠️ Đây là chuỗi sự kiện lặp lại.\nBạn có chắc chắn muốn xóa toàn bộ chuỗi sự kiện này không?';
+          }
+          if (confirm(deleteMsg)) {
             try {
               await api.delete(`/events/${event.id}`);
               Toast.success('Đã xóa sự kiện.');
@@ -241,16 +253,27 @@ export class EventForm {
               return;
             }
 
-            const startStr = `${startDateInput.value}T${startTimeInput.value}:00`;
-            const endStr = `${endDateInput.value}T${endTimeInput.value}:00`;
+            const isAllDay = allDayCheckbox.checked;
+            let startAtIso, endAtIso;
+
+            if (isAllDay) {
+              startAtIso = new Date(`${startDateInput.value}T00:00:00`).toISOString();
+              endAtIso = new Date(`${endDateInput.value}T23:59:59`).toISOString();
+            } else {
+              const sTime = startTimeInput.value || '09:00';
+              const eTime = endTimeInput.value || '10:00';
+              startAtIso = new Date(`${startDateInput.value}T${sTime}:00`).toISOString();
+              endAtIso = new Date(`${endDateInput.value}T${eTime}:00`).toISOString();
+            }
+
             const payload = {
               calendar_id: parseInt(calSelect.value, 10),
               title: titleVal,
               location: locationInput.value.trim() || null,
               description: descTextarea.value.trim() || null,
-              start_at: new Date(startStr).toISOString(),
-              end_at: new Date(endStr).toISOString(),
-              is_all_day: allDayCheckbox.checked,
+              start_at: startAtIso,
+              end_at: endAtIso,
+              is_all_day: isAllDay,
               recurrence_rule: recurSelect.value || null
             };
 

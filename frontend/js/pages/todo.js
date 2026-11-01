@@ -262,14 +262,15 @@ export const todoPage = {
 
   showSortDropdown(e) {
     const items = [
-      { label: 'Mặc định (Thủ công)', action: () => { this.sortBy = 'default'; this.updateComponents(); } },
-      { label: '⭐ Quan trọng trước', action: () => { this.sortBy = 'important'; this.updateComponents(); } },
-      { label: '📅 Ngày hạn chót', action: () => { this.sortBy = 'due_date'; this.updateComponents(); } },
-      { label: '🔤 Tên (A-Z)', action: () => { this.sortBy = 'title'; this.updateComponents(); } },
-      { label: '🕒 Ngày tạo', action: () => { this.sortBy = 'created_at'; this.updateComponents(); } }
+      { label: 'Mặc định (Thủ công)', onClick: () => { this.sortBy = 'default'; this.updateComponents(); } },
+      { label: '⭐ Quan trọng trước', onClick: () => { this.sortBy = 'important'; this.updateComponents(); } },
+      { label: '📅 Ngày hạn chót', onClick: () => { this.sortBy = 'due_date'; this.updateComponents(); } },
+      { label: '🔤 Tên (A-Z)', onClick: () => { this.sortBy = 'title'; this.updateComponents(); } },
+      { label: '🕒 Ngày tạo', onClick: () => { this.sortBy = 'created_at'; this.updateComponents(); } }
     ];
 
     Dropdown.show({
+      triggerEl: e.currentTarget,
       anchorEl: e.currentTarget,
       items
     });

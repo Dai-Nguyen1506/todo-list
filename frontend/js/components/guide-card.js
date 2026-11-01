@@ -103,13 +103,17 @@ export class GuideCard {
             createElement('span', { className: 'guide-kbd', textContent: 'W' }),
             createElement('span', { textContent: ' Tuần | ' }),
             createElement('span', { className: 'guide-kbd', textContent: 'M' }),
-            createElement('span', { textContent: ' Tháng' })
+            createElement('span', { textContent: ' Tháng | ' }),
+            createElement('span', { className: 'guide-kbd', textContent: 'A' }),
+            createElement('span', { textContent: ' Lịch trình' })
           ]),
           createElement('li', {}, [
             createElement('span', { className: 'guide-kbd', textContent: 'T' }),
-            createElement('span', { textContent: ' Về Hôm nay | ' }),
-            createElement('span', { className: 'guide-kbd', textContent: 'N' }),
-            createElement('span', { textContent: ' Tạo sự kiện mới' })
+            createElement('span', { textContent: ' Hôm nay | ' }),
+            createElement('span', { className: 'guide-kbd', textContent: 'C' }),
+            createElement('span', { textContent: ' Tạo lịch | ' }),
+            createElement('span', { className: 'guide-kbd', textContent: '?' }),
+            createElement('span', { textContent: ' Trợ giúp phím tắt' })
           ]),
           createElement('li', { textContent: 'Việc cần làm có cài đặt Giờ sẽ xuất hiện trực tiếp trên khung giờ lịch biểu.' })
         ])

@@ -3,10 +3,12 @@ import { createElement } from '../utils/dom.js';
 export class Dropdown {
   static activeMenu = null;
 
-  static show({ triggerEl, items = [] }) {
+  static show({ triggerEl, anchorEl, items = [] }) {
     this.close();
+    const targetEl = triggerEl || anchorEl;
+    if (!targetEl) return;
 
-    const rect = triggerEl.getBoundingClientRect();
+    const rect = targetEl.getBoundingClientRect();
     const menu = createElement('div', {
       className: 'dropdown-menu',
       style: {
@@ -26,7 +28,8 @@ export class Dropdown {
         onclick: (e) => {
           e.stopPropagation();
           Dropdown.close();
-          if (typeof item.onClick === 'function') item.onClick();
+          const callback = item.onClick || item.action;
+          if (typeof callback === 'function') callback();
         }
       }, [
         item.icon ? createElement('span', { className: 'dropdown-icon', textContent: item.icon }) : null,
@@ -40,7 +43,7 @@ export class Dropdown {
     this.activeMenu = menu;
 
     const handleOutsideClick = (e) => {
-      if (!menu.contains(e.target) && !triggerEl.contains(e.target)) {
+      if (!menu.contains(e.target) && !targetEl.contains(e.target)) {
         Dropdown.close();
         document.removeEventListener('click', handleOutsideClick);
       }

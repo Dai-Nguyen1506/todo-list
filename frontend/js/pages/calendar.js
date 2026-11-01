@@ -9,6 +9,7 @@ import { MiniCalendar } from '../calendar/mini-calendar.js';
 import { DayView } from '../calendar/day-view.js';
 import { WeekView } from '../calendar/week-view.js';
 import { MonthView } from '../calendar/month-view.js';
+import { AgendaView } from '../calendar/agenda-view.js';
 import { EventForm } from '../calendar/event-form.js';
 import { RRuleParser } from '../calendar/rrule.js';
 import { adaptTasksForCalendar } from '../calendar/task-adapter.js';
@@ -65,13 +66,14 @@ export const calendarPage = {
     await this.fetchCalendars(calListSection);
     await this.updateView();
 
-    // Setup Keyboard shortcuts (D, W, M, T, N)
+    // Setup Keyboard shortcuts (D, W, M, A, T, N)
     this.handleKeyDown = (e) => {
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
       const key = e.key.toUpperCase();
       if (key === 'D') this.setViewMode('day');
       else if (key === 'W') this.setViewMode('week');
       else if (key === 'M') this.setViewMode('month');
+      else if (key === 'A') this.setViewMode('agenda');
       else if (key === 'T') {
         store.set('selectedDate', new Date());
         this.updateView();
@@ -85,6 +87,13 @@ export const calendarPage = {
     // Cross-module sync with Tasks
     this.handleTaskChanged = () => this.updateView();
     document.addEventListener('task-changed', this.handleTaskChanged);
+
+    // Shortcut create event
+    this.handleShortcutCreate = () => {
+      const d = store.get('selectedDate') || new Date();
+      EventForm.showFullModal({ startAt: d, onCreated: () => this.updateView() });
+    };
+    document.addEventListener('shortcut-create-event', this.handleShortcutCreate);
   },
 
   async fetchCalendars(container) {
@@ -207,6 +216,10 @@ export const calendarPage = {
     } else if (curMode === 'week') {
       startDt = getStartOfWeek(curDate, true);
       endDt = addDays(startDt, 7);
+    } else if (curMode === 'agenda') {
+      startDt = new Date(curDate);
+      startDt.setHours(0, 0, 0, 0);
+      endDt = addDays(startDt, 30);
     } else {
       startDt = new Date(curDate.getFullYear(), curDate.getMonth(), 1);
       endDt = new Date(curDate.getFullYear(), curDate.getMonth() + 1, 0, 23, 59, 59);
@@ -220,6 +233,8 @@ export const calendarPage = {
       const s = getStartOfWeek(curDate, true);
       const e = addDays(s, 6);
       displayTitle = `${s.getDate()} thg ${s.getMonth() + 1} - ${e.getDate()} thg ${e.getMonth() + 1}, ${s.getFullYear()}`;
+    } else if (curMode === 'agenda') {
+      displayTitle = `Lịch trình (từ ${curDate.getDate()} thg ${curDate.getMonth() + 1})`;
     } else {
       displayTitle = `${getMonthName(curDate.getMonth())}, ${curDate.getFullYear()}`;
     }
@@ -236,6 +251,7 @@ export const calendarPage = {
         <button class="view-toggle-btn ${curMode === 'day' ? 'active' : ''}" data-view="day">Ngày</button>
         <button class="view-toggle-btn ${curMode === 'week' ? 'active' : ''}" data-view="week">Tuần</button>
         <button class="view-toggle-btn ${curMode === 'month' ? 'active' : ''}" data-view="month">Tháng</button>
+        <button class="view-toggle-btn ${curMode === 'agenda' ? 'active' : ''}" data-view="agenda">Lịch trình</button>
       </div>
     `;
 
@@ -272,7 +288,13 @@ export const calendarPage = {
         this.activeView.destroy();
       }
 
-      const expandedEvents = RRuleParser.expandAll(events || [], startDt, endDt);
+      const visibleCalIds = new Set(
+        (store.get('calendars') || [])
+          .filter(c => c.is_visible !== false)
+          .map(c => c.id)
+      );
+      const expandedEvents = RRuleParser.expandAll(events || [], startDt, endDt)
+        .filter(e => !e.calendar_id || visibleCalIds.has(e.calendar_id));
       const adaptedTasks = adaptTasksForCalendar(tasks || []);
 
       const defaultCal = (store.get('calendars') || []).find(c => c.is_default);
@@ -288,6 +310,8 @@ export const calendarPage = {
         this.activeView = new DayView(viewContainer, viewOptions);
       } else if (curMode === 'month') {
         this.activeView = new MonthView(viewContainer, viewOptions);
+      } else if (curMode === 'agenda') {
+        this.activeView = new AgendaView(viewContainer, viewOptions);
       } else {
         this.activeView = new WeekView(viewContainer, viewOptions);
       }
@@ -329,6 +353,10 @@ export const calendarPage = {
     if (this.handleTaskChanged) {
       document.removeEventListener('task-changed', this.handleTaskChanged);
       this.handleTaskChanged = null;
+    }
+    if (this.handleShortcutCreate) {
+      document.removeEventListener('shortcut-create-event', this.handleShortcutCreate);
+      this.handleShortcutCreate = null;
     }
     if (this.activeView && typeof this.activeView.destroy === 'function') {
       this.activeView.destroy();

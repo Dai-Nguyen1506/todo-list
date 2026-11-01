@@ -1,5 +1,6 @@
 import { createElement } from '../utils/dom.js';
 import { isToday } from '../utils/date.js';
+import { soundManager } from '../utils/sound.js';
 
 export class TaskItem {
   static create({
@@ -58,6 +59,9 @@ export class TaskItem {
       onclick: (e) => {
         e.stopPropagation();
         if (onToggleComplete) {
+          if (!isCompleted) {
+            soundManager.playTaskComplete();
+          }
           item.classList.add('task-completing');
           setTimeout(() => {
             onToggleComplete(task, !isCompleted);
