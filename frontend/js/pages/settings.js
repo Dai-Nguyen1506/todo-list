@@ -14,7 +14,15 @@ export const settingsPage = {
 
     const page = createElement('div', { className: 'settings-page' });
     const currentTheme = ThemeManager.getSavedTheme();
-    const user = store.get('user') || {};
+    
+    let user = store.get('user');
+    try {
+      const response = await api.get('/users/me');
+      user = response?.data || response;
+      store.set('user', user);
+    } catch (_) {
+      user = user || {};
+    }
 
     // 1. Appearance Section
     const themeSection = createElement('div', { className: 'settings-section' }, [
@@ -66,11 +74,13 @@ export const settingsPage = {
       value: user.nickname || ''
     });
 
+    const currentTimezone = user.timezone || 'Asia/Ho_Chi_Minh';
     const timezoneSelect = createElement('select', { className: 'select' }, [
-      createElement('option', { value: 'Asia/Ho_Chi_Minh', textContent: 'Hà Nội, TP.HCM (GMT+7)', selected: user.timezone === 'Asia/Ho_Chi_Minh' }),
-      createElement('option', { value: 'Asia/Tokyo', textContent: 'Tokyo (GMT+9)', selected: user.timezone === 'Asia/Tokyo' }),
-      createElement('option', { value: 'UTC', textContent: 'Giờ phối hợp quốc tế (UTC)', selected: user.timezone === 'UTC' })
+      createElement('option', { value: 'Asia/Ho_Chi_Minh', textContent: 'Hà Nội, TP.HCM (GMT+7)', selected: currentTimezone === 'Asia/Ho_Chi_Minh' }),
+      createElement('option', { value: 'Asia/Tokyo', textContent: 'Tokyo (GMT+9)', selected: currentTimezone === 'Asia/Tokyo' }),
+      createElement('option', { value: 'UTC', textContent: 'Giờ phối hợp quốc tế (UTC)', selected: currentTimezone === 'UTC' })
     ]);
+    timezoneSelect.value = currentTimezone;
 
     const saveProfileBtn = createElement('button', {
       className: 'btn btn-primary',
@@ -84,6 +94,9 @@ export const settingsPage = {
           });
           const updatedUser = updated?.data || updated;
           store.set('user', updatedUser);
+          if (updatedUser?.timezone) {
+            timezoneSelect.value = updatedUser.timezone;
+          }
           Toast.success('Cập nhật thông tin thành công!');
         } catch (err) {
           Toast.error(err.message || 'Lỗi cập nhật.');

@@ -7,6 +7,11 @@ export const $$ = (selector, parent = document) => [...parent.querySelectorAll(s
 export function createElement(tag, attrs = {}, children = []) {
   const el = document.createElement(tag);
   
+  const booleanAttrs = new Set([
+    'checked', 'selected', 'disabled', 'readOnly', 'readonly',
+    'required', 'multiple', 'autofocus', 'hidden', 'open'
+  ]);
+
   Object.entries(attrs).forEach(([key, value]) => {
     if (key === 'className') {
       el.className = value;
@@ -20,7 +25,23 @@ export function createElement(tag, attrs = {}, children = []) {
       Object.assign(el.style, value);
     } else if (key === 'dataset' && typeof value === 'object') {
       Object.assign(el.dataset, value);
-    } else if (value !== null && value !== undefined) {
+    } else if (booleanAttrs.has(key)) {
+      const boolVal = Boolean(value);
+      const propKey = key === 'readonly' ? 'readOnly' : key;
+      el[propKey] = boolVal;
+      if (boolVal) {
+        el.setAttribute(key, '');
+      } else {
+        el.removeAttribute(key);
+      }
+    } else if (key === 'value') {
+      el.value = value !== null && value !== undefined ? value : '';
+      if (value !== null && value !== undefined) {
+        el.setAttribute('value', value);
+      } else {
+        el.removeAttribute('value');
+      }
+    } else if (value !== null && value !== undefined && value !== false) {
       el.setAttribute(key, value);
     }
   });

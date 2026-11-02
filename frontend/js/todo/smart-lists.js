@@ -183,13 +183,25 @@ export class SmartListsSidebar {
       ])
     ]);
 
+    const nameInput = content.querySelector('#new-list-name-input');
+    if (nameInput) {
+      nameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const confirmBtn = document.getElementById('modal-confirm-btn');
+          if (confirmBtn) confirmBtn.click();
+        }
+      });
+      setTimeout(() => nameInput.focus(), 80);
+    }
+
     Modal.open({
       title: 'Tạo danh sách mới',
       content,
       confirmText: 'Tạo danh sách',
       onConfirm: async () => {
-        const nameInput = content.querySelector('#new-list-name-input');
-        const name = nameInput.value.trim();
+        const input = content.querySelector('#new-list-name-input');
+        const name = input ? input.value.trim() : '';
         if (!name) {
           Toast.error('Vui lòng nhập tên danh sách');
           return false;
@@ -201,8 +213,7 @@ export class SmartListsSidebar {
             icon: selectedIcon,
             color: selectedColor
           });
-          this.taskLists.push(newList);
-          store.set('taskLists', this.taskLists);
+          await this.fetchLists();
           this.activeListId = newList.id;
           this.render();
           if (this.onSelectList) this.onSelectList(newList.id, newList.name, newList.icon, newList);
@@ -316,6 +327,18 @@ export class SmartListsSidebar {
         }))
       ])
     ]);
+
+    const editInput = content.querySelector('#edit-list-name-input');
+    if (editInput) {
+      editInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const confirmBtn = document.getElementById('modal-confirm-btn');
+          if (confirmBtn) confirmBtn.click();
+        }
+      });
+      setTimeout(() => editInput.focus(), 80);
+    }
 
     Modal.open({
       title: 'Chỉnh sửa danh sách',
